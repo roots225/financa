@@ -1,0 +1,783 @@
+<div class="flex flex-col w-full gap-5">
+  <!-- EN-TÊTE CONTEXTUEL ET ACTIONS STRATÉGIQUES -->
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div class="flex flex-col gap-1.5">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h1 class="text-headline-lg text-on-surface font-bold tracking-tight">Compte de Résultat & Tableau des Flux de Trésorerie (TFT)</h1>
+        <span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-badge font-bold uppercase tracking-wider flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          SYSCOHADA Révisé 2024
+        </span>
+      </div>
+      <div class="flex items-center gap-2 text-secondary text-body-sm flex-wrap">
+        <span class="flex items-center gap-1 text-on-surface font-medium">
+          <lucide-icon name="shield-check" size="15" class="text-primary" />
+          Exercice 2024 Clôturé
+        </span>
+        <span class="text-outline-variant">•</span>
+        <span>Méthode Indirecte TFT</span>
+        <span class="text-outline-variant">•</span>
+        <span class="font-mono text-xs text-secondary bg-surface-container-high px-2 py-0.5 rounded">Scellement SHA-256: #8F0A2C9</span>
+        <span class="text-outline-variant">•</span>
+        <span class="text-primary font-medium">UEMOA / Zone FCFA</span>
+      </div>
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <div class="flex items-center bg-white px-3 py-1.5 rounded-lg shadow-sm gap-2 border border-surface-container">
+        <lucide-icon name="calendar" size="16" class="text-secondary" />
+        <span class="text-body-sm text-on-surface font-semibold">Exercice 2024 (12 mois)</span>
+        <lucide-icon name="chevron-down" size="14" class="text-secondary" />
+      </div>
+      <button
+        type="button"
+        (click)="rapprocherGrandLivre()"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface text-body-sm font-semibold shadow-sm transition-all border border-surface-container"
+      >
+        <lucide-icon name="landmark" size="16" class="text-secondary" />
+        <span>Rapprocher Grand Livre</span>
+      </button>
+      <button
+        type="button"
+        (click)="exporterLiasseFiscale()"
+        class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-white text-body-sm font-semibold shadow-sm transition-all"
+      >
+        <lucide-icon name="download" size="16" />
+        <span>Exporter Liasse Fiscale</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 5 CARTES BENTO / INDICATEURS CLÉS -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-3.5">
+    <!-- CA Net -->
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-body-sm text-secondary font-medium">Chiffre d'Affaires Net</span>
+        <span class="font-mono text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded font-semibold">+14.2%</span>
+      </div>
+      <div class="my-2">
+        <div class="font-mono text-headline-sm font-bold text-on-surface">57 580 000 <span class="text-body-sm text-secondary font-normal">FCFA</span></div>
+        <p class="text-xs text-secondary mt-0.5">Ventes march. (Classe 70)</p>
+      </div>
+      <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+        <div class="bg-primary h-full rounded-full" style="width: 86%"></div>
+      </div>
+    </div>
+
+    <!-- Valeur Ajoutée -->
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-body-sm text-secondary font-medium">Valeur Ajoutée (VA)</span>
+        <span class="font-mono text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded font-semibold">34 480 000</span>
+      </div>
+      <div class="my-2">
+        <div class="font-mono text-headline-sm font-bold text-on-surface">13 980 000 <span class="text-body-sm text-secondary font-normal">FCFA</span></div>
+        <p class="text-xs text-secondary mt-0.5">EBE (EBITDA SYSCOHADA)</p>
+      </div>
+      <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+        <div class="bg-primary h-full rounded-full" style="width: 62%"></div>
+      </div>
+    </div>
+
+    <!-- Résultat Net -->
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-body-sm text-secondary font-medium">Résultat Net (après IS)</span>
+        <span class="font-mono text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded font-semibold">24.27% CA</span>
+      </div>
+      <div class="my-2">
+        <div class="font-mono text-headline-sm font-bold text-primary">+13 976 250 <span class="text-body-sm text-secondary font-normal">FCFA</span></div>
+        <p class="text-xs text-secondary mt-0.5">IS BIC (25%) : 4 658 750 F</p>
+      </div>
+      <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+        <div class="bg-primary h-full rounded-full" style="width: 75%"></div>
+      </div>
+    </div>
+
+    <!-- CAF -->
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-body-sm text-secondary font-medium">Autofinancement (CAF)</span>
+        <span class="text-badge uppercase text-primary font-bold">Dot. 16,5M</span>
+      </div>
+      <div class="my-2">
+        <div class="font-mono text-headline-sm font-bold text-on-surface">30 476 250 <span class="text-body-sm text-secondary font-normal">FCFA</span></div>
+        <p class="text-xs text-secondary mt-0.5">RN + Amort. 68 + Prov. 69</p>
+      </div>
+      <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+        <div class="bg-primary h-full rounded-full" style="width: 92%"></div>
+      </div>
+    </div>
+
+    <!-- Variation TFT -->
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-body-sm text-secondary font-medium">Variation Nette TFT</span>
+        <span class="font-mono text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded font-semibold">+18.4%</span>
+      </div>
+      <div class="my-2">
+        <div class="font-mono text-headline-sm font-bold text-primary">+7 026 250 <span class="text-body-sm text-secondary font-normal">FCFA</span></div>
+        <p class="text-xs text-secondary mt-0.5">Solde fin: 45 226 250 FCFA</p>
+      </div>
+      <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+        <div class="bg-primary h-full rounded-full" style="width: 58%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONGLET DE NAVIGATION INTERNE (CR, SIG, TFT, MENSUEL, BILAN) -->
+  <div class="flex items-center justify-between bg-surface-container-low p-1.5 rounded-xl overflow-x-auto border border-surface-container">
+    <div class="flex items-center gap-1.5">
+      <button
+        type="button"
+        (click)="switchTab('cr')"
+        class="px-4 py-2 rounded-lg text-body-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap"
+        [class.bg-primary]="activeTab() === 'cr'"
+        [class.text-white]="activeTab() === 'cr'"
+        [class.shadow-sm]="activeTab() === 'cr'"
+        [class.text-secondary]="activeTab() !== 'cr'"
+        [class.hover:text-on-surface]="activeTab() !== 'cr'"
+        [class.hover:bg-surface-container]="activeTab() !== 'cr'"
+      >
+        <lucide-icon name="receipt" size="16" />
+        <span>Compte de Résultat Analytique (Classe 6 & 7)</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="switchTab('sig')"
+        class="px-4 py-2 rounded-lg text-body-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap"
+        [class.bg-primary]="activeTab() === 'sig'"
+        [class.text-white]="activeTab() === 'sig'"
+        [class.shadow-sm]="activeTab() === 'sig'"
+        [class.text-secondary]="activeTab() !== 'sig'"
+        [class.hover:text-on-surface]="activeTab() !== 'sig'"
+        [class.hover:bg-surface-container]="activeTab() !== 'sig'"
+      >
+        <lucide-icon name="trending-down" size="16" />
+        <span>Soldes Intermédiaires de Gestion (SIG)</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="switchTab('tft')"
+        class="px-4 py-2 rounded-lg text-body-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap"
+        [class.bg-primary]="activeTab() === 'tft'"
+        [class.text-white]="activeTab() === 'tft'"
+        [class.shadow-sm]="activeTab() === 'tft'"
+        [class.text-secondary]="activeTab() !== 'tft'"
+        [class.hover:text-on-surface]="activeTab() !== 'tft'"
+        [class.hover:bg-surface-container]="activeTab() !== 'tft'"
+      >
+        <lucide-icon name="git-branch" size="16" />
+        <span>Tableau des Flux de Trésorerie (TFT)</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="switchTab('mensuel')"
+        class="px-4 py-2 rounded-lg text-body-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap"
+        [class.bg-primary]="activeTab() === 'mensuel'"
+        [class.text-white]="activeTab() === 'mensuel'"
+        [class.shadow-sm]="activeTab() === 'mensuel'"
+        [class.text-secondary]="activeTab() !== 'mensuel'"
+        [class.hover:text-on-surface]="activeTab() !== 'mensuel'"
+        [class.hover:bg-surface-container]="activeTab() !== 'mensuel'"
+      >
+        <lucide-icon name="line-chart" size="16" />
+        <span>Ventilation & Évolution Mensuelle</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="switchTab('bilan')"
+        class="px-4 py-2 rounded-lg text-body-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap"
+        [class.bg-primary]="activeTab() === 'bilan'"
+        [class.text-white]="activeTab() === 'bilan'"
+        [class.shadow-sm]="activeTab() === 'bilan'"
+        [class.text-secondary]="activeTab() !== 'bilan'"
+        [class.hover:text-on-surface]="activeTab() !== 'bilan'"
+        [class.hover:bg-surface-container]="activeTab() !== 'bilan'"
+      >
+        <lucide-icon name="landmark" size="16" />
+        <span>Bilan Normal (Actif / Passif)</span>
+      </button>
+    </div>
+
+    <div class="hidden xl:flex items-center gap-2 text-secondary px-3 py-1 font-mono text-xs">
+      <span class="w-2 h-2 rounded-full bg-primary"></span>
+      SYSCOHADA v2024.1 Concordant
+    </div>
+  </div>
+
+  <!-- GRILLE PRINCIPALE (8 COLS CONTENU + 4 COLS SYNTHÈSE AUDIT) -->
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+    <!-- COLONNE GAUCHE (8 COLONNES) -->
+    <div class="xl:col-span-8 flex flex-col gap-5">
+
+      <!-- VUE 1 : COMPTE DE RÉSULTAT ANALYTIQUE (CLASSE 6 & 7) -->
+      @if (activeTab() === 'cr') {
+        <div class="p-5 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col gap-4">
+          <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+            <div>
+              <h2 class="text-headline-sm text-on-surface font-bold">Compte de Résultat SYSCOHADA (Produits vs Charges)</h2>
+              <p class="text-body-sm text-secondary">Ventilation normalisée selon le plan comptable général OHADA révisé</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full bg-surface-container font-mono text-xs text-on-surface font-semibold">
+                Base: 66 945 000 FCFA
+              </span>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="bg-surface-container-low text-secondary text-body-sm uppercase tracking-wider">
+                  <th class="py-2.5 px-3 font-semibold rounded-l-lg">Poste & N° Compte</th>
+                  <th class="py-2.5 px-3 font-semibold">Libellé SYSCOHADA</th>
+                  <th class="py-2.5 px-3 font-semibold text-right">Exercice 2024 (FCFA)</th>
+                  <th class="py-2.5 px-3 font-semibold text-right">% CA</th>
+                  <th class="py-2.5 px-3 font-semibold text-center rounded-r-lg">Statut</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-surface-container text-body-sm">
+                <!-- 1. PRODUITS -->
+                <tr class="bg-primary/5 font-semibold text-on-surface">
+                  <td class="py-2 px-3 font-mono text-xs uppercase tracking-wider text-primary" colspan="5">
+                    1. Produits d'Exploitation & Activités Ordinaires (Classe 7)
+                  </td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-primary font-bold">Compte 701-706</td>
+                  <td class="py-2.5 px-3 text-on-surface">Ventes de marchandises et services</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">57 580 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">100.0%</td>
+                  <td class="py-2.5 px-3 text-center">
+                    <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-badge font-bold">Imputé</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-primary font-bold">Compte 71 / 72</td>
+                  <td class="py-2.5 px-3 text-on-surface">Production stockée et immobilisée</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">3 240 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">5.6%</td>
+                  <td class="py-2.5 px-3 text-center">
+                    <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-badge font-bold">Imputé</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-primary font-bold">Compte 75 / 77</td>
+                  <td class="py-2.5 px-3 text-on-surface">Subventions d'exploit. et autres produits de gestion</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">4 825 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">8.4%</td>
+                  <td class="py-2.5 px-3 text-center">
+                    <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-badge font-bold">Imputé</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-primary font-bold">Compte 78 / 79</td>
+                  <td class="py-2.5 px-3 text-on-surface">Produits financiers & Transferts de charges</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">1 300 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">2.3%</td>
+                  <td class="py-2.5 px-3 text-center">
+                    <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-badge font-bold">Imputé</span>
+                  </td>
+                </tr>
+                <tr class="bg-surface-container font-bold text-on-surface">
+                  <td class="py-2.5 px-3 text-body-md" colspan="2">TOTAL PRODUITS (CLASSE 7)</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-primary font-bold">66 945 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-primary font-bold">116.3%</td>
+                  <td class="py-2.5 px-3 text-center"><span class="font-mono text-primary font-bold">Équilibré</span></td>
+                </tr>
+
+                <!-- 2. CHARGES -->
+                <tr class="bg-error/5 font-semibold text-on-surface">
+                  <td class="py-2 px-3 font-mono text-xs uppercase tracking-wider text-error" colspan="5">
+                    2. Charges d'Exploitation & Activités Ordinaires (Classe 6)
+                  </td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-secondary font-bold">Compte 601-608</td>
+                  <td class="py-2.5 px-3 text-on-surface">Achats de marchandises & variations stocks</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">14 200 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">24.7%</td>
+                  <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary text-badge font-bold">Validé</span></td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-secondary font-bold">Compte 62 - 63</td>
+                  <td class="py-2.5 px-3 text-on-surface">Services extérieurs A & B (Transports, loyers)</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">8 900 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">15.5%</td>
+                  <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary text-badge font-bold">Validé</span></td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-secondary font-bold">Compte 64</td>
+                  <td class="py-2.5 px-3 text-on-surface">Impôts et taxes indirects</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">1 250 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">2.2%</td>
+                  <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary text-badge font-bold">Validé</span></td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-secondary font-bold">Compte 66</td>
+                  <td class="py-2.5 px-3 text-on-surface">Charges de personnel (Salaires & charges sociales)</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">20 500 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">35.6%</td>
+                  <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary text-badge font-bold">Conforme</span></td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-secondary font-bold">Compte 67</td>
+                  <td class="py-2.5 px-3 text-on-surface">Frais financiers & charges assimilées</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">1 960 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">3.4%</td>
+                  <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary text-badge font-bold">Conforme</span></td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-secondary font-bold">Compte 65</td>
+                  <td class="py-2.5 px-3 text-on-surface">Autres charges courantes de gestion</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-on-surface">1 500 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">2.6%</td>
+                  <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary text-badge font-bold">Conforme</span></td>
+                </tr>
+                <tr class="bg-surface-container font-bold text-on-surface">
+                  <td class="py-2.5 px-3 text-body-md" colspan="2">TOTAL CHARGES D'EXPLOITATION & FINANCIÈRES (CLASSE 6)</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-error font-bold">48 310 000</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-error font-bold">83.9%</td>
+                  <td class="py-2.5 px-3 text-center"><span class="font-mono text-secondary font-bold">Vérifié</span></td>
+                </tr>
+                <tr class="bg-surface-container-high/60 font-bold">
+                  <td class="py-3 px-3 text-body-md text-on-surface" colspan="2">RÉSULTAT BRUT AVANT IMPÔT</td>
+                  <td class="py-3 px-3 font-mono text-right text-primary font-bold text-base">+18 635 000</td>
+                  <td class="py-3 px-3 font-mono text-right text-primary font-bold">32.4%</td>
+                  <td class="py-3 px-3 text-center">
+                    <span class="px-2 py-0.5 rounded-full bg-primary text-white text-badge font-bold">Audité</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-surface-container-low/50">
+                  <td class="py-2.5 px-3 font-mono text-error font-bold">Compte 89</td>
+                  <td class="py-2.5 px-3 text-on-surface">Impôt sur les Sociétés / BIC (Taux 25%)</td>
+                  <td class="py-2.5 px-3 font-mono font-bold text-right text-error">-4 658 750</td>
+                  <td class="py-2.5 px-3 font-mono text-right text-secondary">8.1%</td>
+                  <td class="py-2.5 px-3 text-center">
+                    <span class="px-2 py-0.5 rounded-full bg-error/10 text-error text-badge font-bold">DGI Conforme</span>
+                  </td>
+                </tr>
+                <tr class="bg-primary text-white font-bold rounded-lg shadow-sm">
+                  <td class="py-3.5 px-3 text-headline-sm" colspan="2">RÉSULTAT NET DE L'EXERCICE 2024</td>
+                  <td class="py-3.5 px-3 font-mono text-headline-sm text-right text-white">+13 976 250</td>
+                  <td class="py-3.5 px-3 font-mono text-right text-white font-bold">24.3%</td>
+                  <td class="py-3.5 px-3 text-center">
+                    <span class="px-2.5 py-1 rounded-full bg-white text-primary text-badge font-bold">Bénéfice</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      <!-- VUE 2 : SOLDES INTERMÉDIAIRES DE GESTION (SIG) -->
+      @if (activeTab() === 'sig') {
+        <div class="p-5 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-headline-sm text-on-surface font-bold">Cascade des Soldes Intermédiaires de Gestion (SIG)</h2>
+              <p class="text-body-sm text-secondary">Tableau pluriannuel normé SYSCOHADA – Décomposition de la rentabilité</p>
+            </div>
+            <span class="px-3 py-1 rounded bg-secondary-container text-on-secondary-container font-mono text-xs font-bold">
+              SYSCOHADA Art. 31
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-1 border border-surface-container">
+              <span class="text-body-sm text-secondary font-medium">1. Marge Commerciale (Ventes 70 - Achats 60)</span>
+              <div class="flex items-baseline justify-between mt-1">
+                <span class="font-mono text-headline-sm font-bold text-on-surface">43 380 000 FCFA</span>
+                <span class="font-mono text-xs text-primary font-semibold">Taux de marque: 75.3%</span>
+              </div>
+              <p class="text-xs text-secondary mt-1">Activité de négoce et distribution régionale</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-1 border border-surface-container">
+              <span class="text-body-sm text-secondary font-medium">2. Valeur Ajoutée (Marge - Services extérieurs)</span>
+              <div class="flex items-baseline justify-between mt-1">
+                <span class="font-mono text-headline-sm font-bold text-on-surface">34 480 000 FCFA</span>
+                <span class="font-mono text-xs text-primary font-semibold">59.9% du CA</span>
+              </div>
+              <p class="text-xs text-secondary mt-1">Richesse brute produite par l'exploitation</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-1 border border-surface-container">
+              <span class="text-body-sm text-secondary font-medium">3. Excédent Brut d'Exploitation (EBE / EBITDA)</span>
+              <div class="flex items-baseline justify-between mt-1">
+                <span class="font-mono text-headline-sm font-bold text-primary">13 980 000 FCFA</span>
+                <span class="font-mono text-xs text-primary font-semibold">24.3% du CA</span>
+              </div>
+              <p class="text-xs text-secondary mt-1">Après charges de personnel (20.5M) et impôts (1.25M)</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-1 border border-surface-container">
+              <span class="text-body-sm text-secondary font-medium">4. Résultat Financier Net</span>
+              <div class="flex items-baseline justify-between mt-1">
+                <span class="font-mono text-headline-sm font-bold text-error">-660 000 FCFA</span>
+                <span class="font-mono text-xs text-secondary font-semibold">Produits 1.3M - Chg 1.96M</span>
+              </div>
+              <p class="text-xs text-secondary mt-1">Couverture des intérêts d'emprunt bancaire</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-surface-container flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="text-body-sm text-on-surface font-semibold">Résultat des Activités Ordinaires (RAO)</span>
+              <span class="font-mono text-body-lg font-bold text-primary">18 635 000 FCFA</span>
+            </div>
+            <div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+              <div class="bg-primary h-full rounded-full" style="width: 78%"></div>
+            </div>
+            <div class="flex justify-between font-mono text-xs text-secondary pt-1">
+              <span>Résultat Hors Activités Ordinaires (HAO) : 0 FCFA</span>
+              <span>Conformité SYSCOHADA : Intégralement régularisé</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- VUE 3 : TABLEAU DES FLUX DE TRÉSORERIE (TFT) -->
+      @if (activeTab() === 'tft') {
+        <div class="p-5 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col gap-4">
+          <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+            <div>
+              <h2 class="text-headline-sm text-on-surface font-bold">Tableau des Flux de Trésorerie (TFT - Méthode Indirecte)</h2>
+              <p class="text-body-sm text-secondary">Conforme aux directives du Conseil Permanent de la Comptabilité OHADA</p>
+            </div>
+            <span class="px-3 py-1 rounded bg-primary/10 text-primary text-badge font-bold uppercase">Méthode Validée</span>
+          </div>
+
+          <!-- A. ACTIVITÉS OPÉRATIONNELLES -->
+          <div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-2 border border-surface-container">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded bg-primary text-white flex items-center justify-center font-bold text-xs">A</span>
+                <span class="text-body-lg font-bold text-on-surface">Flux de Trésorerie provenant des Activités Opérationnelles</span>
+              </div>
+              <span class="font-mono text-headline-sm font-bold text-primary">+20 526 250 FCFA</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2 border-t border-surface-container">
+              <div>
+                <p class="text-xs text-secondary">Résultat Net 2024</p>
+                <p class="font-mono text-body-sm font-bold text-on-surface">13 976 250 FCFA</p>
+              </div>
+              <div>
+                <p class="text-xs text-secondary">+ Dotations Amort. (68) & Prov. (69)</p>
+                <p class="font-mono text-body-sm font-bold text-on-surface">+16 500 000 FCFA</p>
+              </div>
+              <div>
+                <p class="text-xs text-secondary">Variation du BFR Opérationnel</p>
+                <p class="font-mono text-body-sm font-bold text-error">-9 950 000 FCFA</p>
+              </div>
+            </div>
+            <div class="mt-1 text-on-surface text-body-sm bg-white p-2.5 rounded-lg border border-surface-container">
+              <span class="font-semibold text-primary">Capacité d'Autofinancement (CAF) :</span> 30 476 250 FCFA (soit 52.9% du chiffre d'affaires).
+            </div>
+          </div>
+
+          <!-- B. OPÉRATIONS D'INVESTISSEMENT -->
+          <div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-2 border border-surface-container">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded bg-secondary text-white flex items-center justify-center font-bold text-xs">B</span>
+                <span class="text-body-lg font-bold text-on-surface">Flux de Trésorerie provenant des Opérations d'Investissement</span>
+              </div>
+              <span class="font-mono text-headline-sm font-bold text-error">-76 500 000 FCFA</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2 border-t border-surface-container">
+              <div>
+                <p class="text-xs text-secondary">Acquisitions d'immobilisations corpo. & incorpo.</p>
+                <p class="font-mono text-body-sm font-bold text-error">-85 000 000 FCFA</p>
+              </div>
+              <div>
+                <p class="text-xs text-secondary">Cessions d'actifs et désinvestissements</p>
+                <p class="font-mono text-body-sm font-bold text-primary">+8 500 000 FCFA</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- C. OPÉRATIONS DE FINANCEMENT -->
+          <div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-2 border border-surface-container">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded bg-brand-teal text-white flex items-center justify-center font-bold text-xs">C</span>
+                <span class="text-body-lg font-bold text-on-surface">Flux de Trésorerie provenant des Opérations de Financement</span>
+              </div>
+              <span class="font-mono text-headline-sm font-bold text-primary">+63 000 000 FCFA</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2 border-t border-surface-container">
+              <div>
+                <p class="text-xs text-secondary">Nouveaux emprunts & concours bancaires</p>
+                <p class="font-mono text-body-sm font-bold text-primary">+88 000 000 FCFA</p>
+              </div>
+              <div>
+                <p class="text-xs text-secondary">Remboursements d'emprunts financiers</p>
+                <p class="font-mono text-body-sm font-bold text-error">-18 500 000 FCFA</p>
+              </div>
+              <div>
+                <p class="text-xs text-secondary">Dividendes versés aux actionnaires</p>
+                <p class="font-mono text-body-sm font-bold text-error">-6 500 000 FCFA</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SYNTHÈSE TRÉSORERIE -->
+          <div class="p-4 rounded-xl bg-surface-container-high flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p class="text-body-sm text-secondary font-medium">Synthèse Trésorerie Clôture</p>
+              <h3 class="text-headline-sm text-on-surface font-bold">Trésorerie Nette SYSCOHADA : +45 226 250 FCFA</h3>
+              <p class="text-body-sm text-secondary">Trésorerie initiale (38 200 000 F) + Variation Nette (+7 026 250 F)</p>
+            </div>
+            <span class="px-4 py-2 rounded-lg bg-primary text-white font-mono text-xs font-bold shadow-sm whitespace-nowrap">
+              Concordance Balance 100%
+            </span>
+          </div>
+        </div>
+      }
+
+      <!-- VUE 4 : VENTILATION MENSUELLE DES PRODUITS & CHARGES -->
+      @if (activeTab() === 'mensuel') {
+        <div class="p-5 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-headline-sm text-on-surface font-bold">Ventilation Mensuelle des Produits & Charges 2024</h2>
+              <p class="text-body-sm text-secondary">Trajectoire budgétaire consolidée sur 12 mois</p>
+            </div>
+            <span class="font-mono text-xs text-secondary">Moyenne mensuelle: 4 798 333 FCFA</span>
+          </div>
+
+          <!-- Graphique en barres 12 mois -->
+          <div class="w-full h-64 flex items-end justify-between gap-2 pt-6 pb-2 px-2 bg-surface-container-low/50 rounded-xl border border-surface-container">
+            @for (m of months; track m.name) {
+              <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group relative">
+                <!-- Tooltip hover -->
+                <div class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center bg-navy px-2 py-1 rounded text-[10px] text-white shadow-lg z-20 whitespace-nowrap">
+                  <span>{{ m.name }}: P={{ m.prod }}M / C={{ m.charges }}M</span>
+                </div>
+
+                <div class="w-full flex items-end justify-center gap-1 h-48">
+                  <div class="w-1/2 bg-primary/80 rounded-t transition-all hover:bg-primary" [style.height]="m.pHeight" [title]="'Produits ' + m.name + ': ' + m.prod + 'M'"></div>
+                  <div class="w-1/2 bg-error/70 rounded-t transition-all hover:bg-error" [style.height]="m.cHeight" [title]="'Charges ' + m.name + ': ' + m.charges + 'M'"></div>
+                </div>
+                <span class="font-mono text-xs text-secondary">{{ m.name }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="flex items-center justify-center gap-6 pt-2 text-body-sm">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded bg-primary"></span>
+              <span class="text-on-surface font-medium">Produits Classe 7</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded bg-error"></span>
+              <span class="text-on-surface font-medium">Charges Classe 6</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- VUE 5 : BILAN BIPARTITE (ACTIF / PASSIF) -->
+      @if (activeTab() === 'bilan') {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- ACTIF -->
+          <div class="p-4 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-2 mb-2 bg-surface-container-low p-2 rounded-lg">
+                <span class="text-headline-sm text-on-surface font-bold">ACTIF (Emplois)</span>
+                <span class="font-mono text-xs text-secondary font-semibold">Exercice 2024</span>
+              </div>
+
+              <div class="divide-y divide-surface-container text-body-sm">
+                <div class="py-2 flex justify-between">
+                  <span class="font-medium">Actif Immobilisé Net (Cl. 2)</span>
+                  <span class="font-mono font-bold">{{ fin.fixedAssetsNet | fcfa }}</span>
+                </div>
+                <div class="py-2 flex justify-between">
+                  <span class="font-medium">Actif Circulant (Stocks & Créances Cl. 3-4)</span>
+                  <span class="font-mono font-bold">{{ fin.currentAssetsNet | fcfa }}</span>
+                </div>
+                <div class="py-2 flex justify-between">
+                  <span class="font-medium">Trésorerie - Actif (Banques & Caisse Cl. 5)</span>
+                  <span class="font-mono font-bold text-primary">{{ fin.cashAssetsNet | fcfa }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-surface-container flex justify-between items-center bg-surface-container-low p-2.5 rounded-lg">
+              <span class="font-bold text-on-surface">TOTAL ACTIF</span>
+              <span class="font-mono text-headline-sm font-bold text-primary">{{ fin.totalAssets | fcfa }}</span>
+            </div>
+          </div>
+
+          <!-- PASSIF -->
+          <div class="p-4 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-2 mb-2 bg-surface-container-low p-2 rounded-lg">
+                <span class="text-headline-sm text-on-surface font-bold">PASSIF (Ressources)</span>
+                <span class="font-mono text-xs text-secondary font-semibold">Exercice 2024</span>
+              </div>
+
+              <div class="divide-y divide-surface-container text-body-sm">
+                <div class="py-2 flex justify-between">
+                  <span class="font-medium">Capitaux Propres & Réserves (Cl. 1)</span>
+                  <span class="font-mono font-bold">{{ fin.equity | fcfa }}</span>
+                </div>
+                <div class="py-2 flex justify-between">
+                  <span class="font-medium">Dettes Financières LT (Cl. 16)</span>
+                  <span class="font-mono font-bold">{{ fin.bs.financialDebt.amount | fcfa }}</span>
+                </div>
+                <div class="py-2 flex justify-between">
+                  <span class="font-medium">Passif Circulant (Fournisseurs & Fiscal Cl. 4)</span>
+                  <span class="font-mono font-bold">{{ fin.currentLiabilities | fcfa }}</span>
+                </div>
+                <div class="py-2 flex justify-between">
+                  <span class="font-medium">Trésorerie - Passif (Découverts Cl. 56)</span>
+                  <span class="font-mono font-bold">{{ fin.cashLiabilities | fcfa }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-surface-container flex justify-between items-center bg-surface-container-low p-2.5 rounded-lg">
+              <span class="font-bold text-on-surface">TOTAL PASSIF</span>
+              <span class="font-mono text-headline-sm font-bold text-primary">{{ fin.totalLiabilities | fcfa }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- COLONNE DROITE (4 COLONNES) : FORMATION DU RÉSULTAT, RAPPROCHEMENT TFT, VISA AUDIT -->
+    <div class="xl:col-span-4 flex flex-col gap-5">
+
+      <!-- 1. FORMATION DU RÉSULTAT (CASCADE SIG) -->
+      <div class="p-5 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-headline-sm text-on-surface font-bold">Formation du Résultat</h3>
+          <span class="font-mono text-xs text-primary font-semibold">Cascade SIG</span>
+        </div>
+        <div class="flex flex-col gap-3 text-body-sm">
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-secondary">Produits Classe 7</span>
+              <span class="font-mono font-bold text-primary">66.95 M FCFA</span>
+            </div>
+            <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+              <div class="bg-primary h-full rounded-full" style="width: 100%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-secondary">Charges Opérationnelles (60-66)</span>
+              <span class="font-mono font-bold text-error">-46.35 M FCFA</span>
+            </div>
+            <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+              <div class="bg-error h-full rounded-full" style="width: 69%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-secondary">Frais Financiers Nets</span>
+              <span class="font-mono font-bold text-error">-0.66 M FCFA</span>
+            </div>
+            <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+              <div class="bg-secondary h-full rounded-full" style="width: 4%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-secondary">Impôt BIC (25%)</span>
+              <span class="font-mono font-bold text-error">-4.66 M FCFA</span>
+            </div>
+            <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+              <div class="bg-error h-full rounded-full" style="width: 7%"></div>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-surface-container">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-on-surface">Résultat Net Restant</span>
+              <span class="font-mono text-headline-sm font-bold text-primary">+13.98 M FCFA</span>
+            </div>
+            <div class="mt-1 flex items-center justify-between text-secondary font-mono text-xs">
+              <span>Marge Nette : 24.3%</span>
+              <span>Rendement Actifs : 16.8%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. RAPPROCHEMENT TFT (A, B, C) -->
+      <div class="p-5 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-headline-sm text-on-surface font-bold">Rapprochement TFT (A, B, C)</h3>
+          <lucide-icon name="piggy-bank" size="18" class="text-primary" />
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-surface-container">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-primary"></span>
+              <span class="text-body-sm font-medium text-on-surface">A. Exploitation</span>
+            </div>
+            <span class="font-mono text-body-sm font-bold text-primary">+20 526 250 F</span>
+          </div>
+
+          <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-surface-container">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-error"></span>
+              <span class="text-body-sm font-medium text-on-surface">B. Investissement</span>
+            </div>
+            <span class="font-mono text-body-sm font-bold text-error">-76 500 000 F</span>
+          </div>
+
+          <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-surface-container">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-brand-teal"></span>
+              <span class="text-body-sm font-medium text-on-surface">C. Financement</span>
+            </div>
+            <span class="font-mono text-body-sm font-bold text-primary">+63 000 000 F</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-primary text-white flex items-center justify-between mt-1 shadow-sm">
+            <span class="text-body-sm font-bold">Flux Net Global (A+B+C)</span>
+            <span class="font-mono text-headline-sm font-bold">+7 026 250 FCFA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. VISA DE CONFORMITÉ & AUDIT -->
+      <div class="p-5 rounded-xl bg-white shadow-sm border border-surface-container flex flex-col gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+            <lucide-icon name="badge-check" size="22" />
+          </div>
+          <div>
+            <h4 class="text-body-lg font-bold text-on-surface">Visa de Conformité & Audit</h4>
+            <p class="text-body-sm text-secondary">Cabinet Audit West Africa / Mazars</p>
+          </div>
+        </div>
+        <div class="p-3 rounded-lg bg-surface-container-low border border-surface-container flex flex-col gap-1 text-on-surface text-body-sm">
+          <p class="font-medium text-primary">« Certification sans réserve »</p>
+          <p class="text-xs text-secondary leading-relaxed">
+            Les états financiers présentés ci-dessus sont sincères et réguliers au regard des normes SYSCOHADA et de la déclaration DGI n°2024-CI-9842.
+          </p>
+        </div>
+        <div class="flex items-center justify-between text-secondary font-mono text-xs pt-1 border-t border-surface-container">
+          <span>Date visa : 15 Mars 2025</span>
+          <span class="text-primary font-bold flex items-center gap-1">
+            <lucide-icon name="shield-check" size="14" />
+            Signé numériquement
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,878 @@
+<div class="flex w-full flex-col gap-6">
+  <!-- 1. En-tête & Statut du Dossier de Syndication -->
+  <header class="card flex flex-col gap-4 p-5 shadow-sm">
+    <!-- Fil d'ariane institutionnel & micro-tags -->
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <nav aria-label="Fil d'Ariane" class="flex items-center gap-1.5 text-secondary text-body-sm">
+        <span>Dossier & Banques</span>
+        <lucide-icon name="chevron-right" [size]="14" class="text-secondary" />
+        <span class="text-on-surface-variant">Pool Bancaire & Financements Multilatéraux</span>
+        <lucide-icon name="chevron-right" [size]="14" class="text-secondary" />
+        <span class="font-semibold text-on-surface">{{ fin.entity.name }}</span>
+      </nav>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-label text-on-surface font-semibold shadow-sm font-mono">
+          <lucide-icon name="shield-check" [size]="13" class="text-primary" />
+          SHA-256 : 9e4f…7c2a
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container text-badge font-bold uppercase shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-on-primary-container animate-pulse"></span>
+          Grade Finança {{ fin.grade }} (Faible Risque)
+        </span>
+      </div>
+    </div>
+
+    <!-- Titre fonctionnel & actions syndication -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface-container-lowest p-4 rounded-xl border border-surface-container shadow-sm">
+      <div class="flex items-start gap-3.5">
+        <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary shrink-0 shadow-sm">
+          <lucide-icon name="landmark" [size]="24" />
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-headline-sm text-on-surface font-bold tracking-tight">Tour de Table & Syndication 2024-2025</h1>
+            <span class="px-2 py-0.5 rounded bg-surface-container text-secondary text-label font-mono font-semibold">SYSCOHADA Clôture J-45</span>
+          </div>
+          <p class="text-body-sm text-secondary mt-1 max-w-2xl leading-relaxed">
+            Protocoles d'accords d'intermédiation directe, vérification cryptographique des liasses financières et contractualisation syndiquée sous convention multilatérale OHADA.
+          </p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 shrink-0">
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface text-body-sm font-semibold transition-all shadow-sm"
+          (click)="openConventionModal()"
+        >
+          <lucide-icon name="file-text" [size]="16" class="text-primary" />
+          Voir Protocole Scellé
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-body-sm font-semibold transition-all"
+          (click)="downloadCertifiedDossier()"
+        >
+          <lucide-icon name="download" [size]="16" />
+          Dossier Certifié PDF
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-body-sm font-semibold transition-all"
+          (click)="inviteLender()"
+        >
+          <lucide-icon name="user-plus" [size]="16" />
+          Inviter Prêteur
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary hover:bg-primary-container text-white text-body-sm font-semibold transition-all shadow-sm"
+          (click)="validateSyndication()"
+        >
+          <lucide-icon name="check-circle-2" [size]="16" />
+          Valider la Syndication
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. KPIs Financements & Pool Bancaire (Bandeau supérieur) -->
+  <section aria-labelledby="kpi-pool-heading">
+    <h2 class="sr-only" id="kpi-pool-heading">Indicateurs clés du tour de table</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
+      <!-- KPI 1 : Volume Sollicité -->
+      <div class="card p-5 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-badge uppercase text-secondary font-bold">Volume Sollicité</span>
+          <span class="px-2 py-0.5 rounded-full bg-surface-container text-label text-secondary font-semibold font-mono">+40M Éligible</span>
+        </div>
+        <div class="my-3">
+          <div class="tabular text-headline-lg font-bold text-on-surface">
+            240 000 000 <span class="text-xs font-normal text-secondary">FCFA</span>
+          </div>
+          <p class="text-body-sm text-secondary mt-0.5">Demande initiale : 200M FCFA</p>
+        </div>
+        <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+          <div class="bg-primary h-full rounded-full" style="width: 100%"></div>
+        </div>
+      </div>
+
+      <!-- KPI 2 : Engagements Reçus -->
+      <div class="card p-5 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-badge uppercase text-secondary font-bold">Engagements Reçus</span>
+          <span class="px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container text-label font-bold text-white">100% Accordé</span>
+        </div>
+        <div class="my-3">
+          <div class="tabular text-headline-lg font-bold text-primary">
+            200 000 000 <span class="text-xs font-normal text-secondary">FCFA</span>
+          </div>
+          <p class="text-body-sm text-secondary mt-0.5">Surplus en délibération : 40 000 000 FCFA</p>
+        </div>
+        <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+          <div class="bg-primary h-full rounded-full" style="width: 83.3%"></div>
+        </div>
+      </div>
+
+      <!-- KPI 3 : Taux Moyen Pondéré -->
+      <div class="card p-5 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-badge uppercase text-secondary font-bold">Taux Moyen Pondéré</span>
+          <span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed text-label font-bold font-mono">-288 bps vs Marché</span>
+        </div>
+        <div class="my-3">
+          <div class="tabular text-headline-lg font-bold text-on-surface">
+            6.62 <span class="text-xs font-normal text-secondary">% / an</span>
+          </div>
+          <p class="text-body-sm text-primary font-medium mt-0.5">Économie d'intérêts : 6 920 000 FCFA/an</p>
+        </div>
+        <div class="flex items-center justify-between text-label text-secondary font-mono">
+          <span>Bench non noté : 9.50%</span>
+          <span class="text-primary font-semibold">Alpha -2.88%</span>
+        </div>
+      </div>
+
+      <!-- KPI 4 : Comité & Échéance -->
+      <div class="card p-5 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-badge uppercase text-secondary font-bold">Comité & Échéance</span>
+          <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface text-label font-semibold font-mono">J-45</span>
+        </div>
+        <div class="my-3">
+          <div class="tabular text-headline-lg font-bold text-on-surface">
+            2 Fermes <span class="text-xs font-normal text-secondary">/ 1 En Cours</span>
+          </div>
+          <p class="text-body-sm text-secondary mt-0.5">Validité des offres : 15 Décembre 2026</p>
+        </div>
+        <div class="flex items-center gap-1.5 text-label text-primary">
+          <lucide-icon name="clock" [size]="14" />
+          <span>Délai moyen d'instruction : 14 jours</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Gestion & Négociation par Institution Bancaire -->
+  <section aria-labelledby="banking-offers-heading" class="flex flex-col gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div>
+        <h2 class="text-headline-sm text-on-surface font-bold" id="banking-offers-heading">Positions du Pool & Contrats d'Adjudication</h2>
+        <p class="text-body-sm text-secondary">Offres fermes et conditions suspensives transmises par les guichets multilatéraux et commerciaux de l'UEMOA.</p>
+      </div>
+      <div class="flex items-center gap-2 self-start sm:self-auto">
+        <span class="inline-flex items-center px-2 py-1 rounded bg-surface-container text-label text-secondary font-semibold">3 Prêteurs Rattachés</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      @for (b of bankOffers; track b.code) {
+        <article class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
+          <div
+            class="absolute top-0 left-0 right-0 h-1.5"
+            [class.bg-primary]="b.tone === 'primary'"
+            [class.bg-brand-blue]="b.tone === 'secondary'"
+            [class.bg-secondary]="b.tone === 'slate'"
+          ></div>
+
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div>
+                <span class="text-badge uppercase font-bold tracking-wider" [class.text-primary]="b.tone === 'primary'" [class.text-secondary]="b.tone !== 'primary'">
+                  {{ b.role }}
+                </span>
+                <h3 class="text-headline-sm text-on-surface font-bold mt-0.5">{{ b.name }}</h3>
+                <p class="text-body-sm text-secondary">{{ b.fullName }}</p>
+              </div>
+              <span
+                class="px-2 py-1 rounded-full text-label font-bold"
+                [class.bg-success-fixed]="b.status === 'Accord Ferme'"
+                [class.text-on-success-fixed]="b.status === 'Accord Ferme'"
+                [class.bg-surface-container]="b.status !== 'Accord Ferme'"
+                [class.text-secondary]="b.status !== 'Accord Ferme'"
+              >
+                {{ b.status }}
+              </span>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-surface-container-low mb-4">
+              <p class="text-body-sm text-on-surface font-medium">{{ b.type }}</p>
+              <p class="text-label text-secondary mt-0.5 font-mono">{{ b.decisionRef }}</p>
+            </div>
+
+            <!-- Données chiffrées -->
+            <div class="grid grid-cols-3 gap-2 py-2 mb-4 text-center">
+              <div class="p-2 rounded bg-surface-container-low">
+                <span class="text-badge text-secondary block uppercase">Montant</span>
+                <span class="tabular font-bold text-on-surface text-body-md">{{ b.amount | mfcfa: 0 }}</span>
+                <span class="text-badge text-secondary block">FCFA</span>
+              </div>
+              <div class="p-2 rounded bg-surface-container-low">
+                <span class="text-badge text-secondary block uppercase">Durée</span>
+                <span class="tabular font-bold text-on-surface text-body-md">{{ b.tenor.split(' ')[0] }} {{ b.tenor.split(' ')[1] }}</span>
+                <span class="text-badge text-secondary block">{{ b.share }}% Pool</span>
+              </div>
+              <div class="p-2 rounded bg-surface-container-low">
+                <span class="text-badge text-secondary block uppercase">Taux</span>
+                <span class="tabular font-bold text-primary text-body-md">{{ b.rate.split(' ')[0] }}</span>
+                <span class="text-badge text-primary block">Négocié</span>
+              </div>
+            </div>
+
+            <!-- Garanties & Covenants -->
+            <div class="flex flex-col gap-2 mb-5">
+              <div class="flex items-start gap-2">
+                <lucide-icon name="shield" [size]="16" class="text-secondary shrink-0 mt-0.5" />
+                <div class="text-body-sm text-on-surface">
+                  <span class="font-semibold text-secondary">Garantie :</span> {{ b.collateral }}
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <lucide-icon name="file-text" [size]="16" class="text-secondary shrink-0 mt-0.5" />
+                <div class="text-body-sm text-on-surface">
+                  <span class="font-semibold text-secondary">Condition :</span> {{ b.covenant }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2 pt-3 border-t border-surface-container">
+            <div class="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                class="flex-1 py-2 px-3 rounded-lg text-body-sm font-semibold transition-all shadow-sm text-center"
+                [class.bg-primary]="b.tone === 'primary'"
+                [class.text-white]="b.tone === 'primary'"
+                [class.hover:bg-primary-container]="b.tone === 'primary'"
+                [class.bg-surface-container]="b.tone !== 'primary'"
+                [class.text-on-surface]="b.tone !== 'primary'"
+                [class.hover:bg-surface-container-high]="b.tone !== 'primary'"
+                (click)="openConventionModal()"
+              >
+                {{ b.primaryAction }}
+              </button>
+              <button
+                type="button"
+                class="py-2 px-3 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-body-sm font-medium transition-all"
+                title="Consulter les détails"
+                (click)="openConventionModal()"
+              >
+                <lucide-icon name="file-text" [size]="16" />
+              </button>
+            </div>
+            <button
+              type="button"
+              class="w-full text-center text-label text-secondary hover:text-on-surface transition-colors py-1 cursor-pointer"
+              (click)="openConventionModal()"
+            >
+              {{ b.secondaryAction }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- 4. Matrice de Syndication & Répartition du Pool -->
+  <section aria-labelledby="syndication-matrix-heading" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+    <!-- Visualisation Répartition du Tour de Table (5 cols) -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between lg:col-span-5">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-headline-sm text-on-surface font-bold" id="syndication-matrix-heading">Répartition de l'Encours</h2>
+          <span class="px-2 py-0.5 rounded bg-surface-container text-label text-secondary font-mono">240M Cible</span>
+        </div>
+        <p class="text-body-sm text-secondary mb-4">Ventilation proportionnelle de la dette financière senior selon les engagements pré-validés.</p>
+
+        <!-- Donut SVG & Stats -->
+        <div class="flex flex-col sm:flex-row items-center gap-5 my-3">
+          <div class="relative w-36 h-36 shrink-0 flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <!-- Background Ring -->
+              <circle class="text-surface-container" cx="18" cy="18" fill="none" r="15.9155" stroke="currentColor" stroke-width="3.8"></circle>
+              <!-- Ecobank 50% -->
+              <circle class="text-primary" cx="18" cy="18" fill="none" r="15.9155" stroke="currentColor" stroke-dasharray="50 50" stroke-dashoffset="0" stroke-width="3.8"></circle>
+              <!-- BOAD 33.3% -->
+              <circle class="text-secondary" cx="18" cy="18" fill="none" r="15.9155" stroke="currentColor" stroke-dasharray="33.3 66.7" stroke-dashoffset="-50" stroke-width="3.8"></circle>
+              <!-- SGCI 16.7% -->
+              <circle class="text-surface-container-highest" cx="18" cy="18" fill="none" r="15.9155" stroke="currentColor" stroke-dasharray="16.7 83.3" stroke-dashoffset="-83.3" stroke-width="3.8"></circle>
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center text-center">
+              <span class="tabular text-headline-sm font-bold text-on-surface">240M</span>
+              <span class="text-badge text-secondary uppercase font-mono">FCFA</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 flex-1 w-full">
+            <div class="flex items-center justify-between p-2 rounded bg-surface-container-low">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                <span class="text-body-sm text-on-surface font-medium">Ecobank CI</span>
+              </div>
+              <span class="tabular text-label font-bold text-on-surface">120M (50.0%)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-surface-container-low">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                <span class="text-body-sm text-on-surface font-medium">BOAD Lomé</span>
+              </div>
+              <span class="tabular text-label font-bold text-on-surface">80M (33.3%)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-surface-container-low">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-surface-container-highest"></span>
+                <span class="text-body-sm text-on-surface font-medium">SGCI</span>
+              </div>
+              <span class="tabular text-label font-bold text-on-surface">40M (16.7%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projection Bilan Prévisionnel 2025 -->
+      <div class="p-3 rounded-lg bg-surface-container mt-3">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-badge uppercase text-secondary font-bold">Effet de Levier Estimé 2025</span>
+          <span class="text-label text-primary font-bold">Rendement FP +4.8%</span>
+        </div>
+        <p class="text-body-sm text-on-surface leading-relaxed">
+          Le coût moyen de la dette (6.62%) reste largement inférieur à la Rentabilité Économique brute (ROCE anticipé à 14.2% selon SYSCOHADA).
+        </p>
+      </div>
+    </div>
+
+    <!-- Covenants Bancaires Croisés & Solvabilité (7 cols) -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between lg:col-span-7">
+      <div>
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-headline-sm text-on-surface font-bold">Covenants Multilatéraux & Respect des Seuils</h2>
+            <p class="text-body-sm text-secondary">Calculs automatiques synchronisés avec la liasse SYSCOHADA.</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container text-label font-bold font-mono text-white">
+            3/3 Covenants Conformes
+          </span>
+        </div>
+
+        <div class="flex flex-col gap-3 mt-2">
+          <!-- Covenant 1 -->
+          <div class="p-3.5 rounded-lg bg-surface-container-low">
+            <div class="flex items-center justify-between mb-1">
+              <div>
+                <span class="text-body-sm text-on-surface font-bold">Levier Financier (Dette Nette / CAF)</span>
+                <span class="text-label text-secondary block font-mono">Seuil exigé par le pool : Max 3.50x</span>
+              </div>
+              <div class="text-right">
+                <span class="tabular text-headline-sm font-bold text-primary">1.12x</span>
+                <span class="px-2 py-0.5 rounded bg-surface-container text-primary text-label block font-medium">Conforme (Marge 68%)</span>
+              </div>
+            </div>
+            <div class="w-full bg-surface-container-high rounded-full h-2 overflow-hidden mt-2">
+              <div class="bg-primary h-full rounded-full" style="width: 32%"></div>
+            </div>
+          </div>
+
+          <!-- Covenant 2 -->
+          <div class="p-3.5 rounded-lg bg-surface-container-low">
+            <div class="flex items-center justify-between mb-1">
+              <div>
+                <span class="text-body-sm text-on-surface font-bold">Ratio de Liquidité Générale (Actif Circulant / Dette CT)</span>
+                <span class="text-label text-secondary block font-mono">Seuil exigé par le pool : Min 1.20x</span>
+              </div>
+              <div class="text-right">
+                <span class="tabular text-headline-sm font-bold text-primary">1.88x</span>
+                <span class="px-2 py-0.5 rounded bg-surface-container text-primary text-label block font-medium">Conforme (+0.68x)</span>
+              </div>
+            </div>
+            <div class="w-full bg-surface-container-high rounded-full h-2 overflow-hidden mt-2">
+              <div class="bg-primary h-full rounded-full" style="width: 78%"></div>
+            </div>
+          </div>
+
+          <!-- Covenant 3 -->
+          <div class="p-3.5 rounded-lg bg-surface-container-low">
+            <div class="flex items-center justify-between mb-1">
+              <div>
+                <span class="text-body-sm text-on-surface font-bold">Autonomie Financière (Capitaux Propres / Total Bilan)</span>
+                <span class="text-label text-secondary block font-mono">Seuil exigé par le pool : Min 33.0%</span>
+              </div>
+              <div class="text-right">
+                <span class="tabular text-headline-sm font-bold text-primary">48.2%</span>
+                <span class="px-2 py-0.5 rounded bg-surface-container text-primary text-label block font-medium">Conforme (+15.2 pts)</span>
+              </div>
+            </div>
+            <div class="w-full bg-surface-container-high rounded-full h-2 overflow-hidden mt-2">
+              <div class="bg-primary h-full rounded-full" style="width: 65%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 mt-3 border-t border-surface-container text-secondary text-body-sm">
+        <span class="flex items-center gap-1.5 text-label text-secondary font-mono">
+          <lucide-icon name="lock" [size]="14" class="text-primary" />
+          Contrôle automatisé des écritures de clôture au 31/10/2026
+        </span>
+        <button
+          type="button"
+          class="text-primary hover:text-on-surface font-semibold text-body-sm flex items-center gap-1 cursor-pointer"
+          (click)="openConventionModal()"
+        >
+          <span>Consulter le protocole complet</span>
+          <lucide-icon name="arrow-right" [size]="14" />
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Data Room d'Audit & Partage Documentaire Sécurisé -->
+  <section aria-labelledby="dataroom-heading" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+    <!-- Pièces Certifiées Transmises (8 cols) -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between lg:col-span-8">
+      <div>
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-headline-sm text-on-surface font-bold" id="dataroom-heading">Data Room Prêteurs & Liasses Scellées</h2>
+            <p class="text-body-sm text-secondary">Contrôle granulaire des accès auditeurs banques avec filigrane dynamique personnalisé.</p>
+          </div>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-body-sm font-semibold transition-all flex items-center gap-1.5"
+            (click)="downloadCertifiedDossier()"
+          >
+            <lucide-icon name="cloud-upload" [size]="16" />
+            <span>Ajouter Pièce</span>
+          </button>
+        </div>
+
+        <!-- Table de pièces jointes -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-body-sm">
+            <thead class="bg-surface-container-low text-secondary text-badge uppercase">
+              <tr>
+                <th class="py-2.5 px-3 rounded-l-lg">Document / Pièce Fiscale</th>
+                <th class="py-2.5 px-3">Cadre & Signature</th>
+                <th class="py-2.5 px-3">Autorisation Banques</th>
+                <th class="py-2.5 px-3 text-right rounded-r-lg">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container">
+              @for (doc of dataRoomDocs; track doc.id) {
+                <tr class="hover:bg-surface-container-low/60 transition-colors">
+                  <td class="py-3 px-3">
+                    <div class="flex items-center gap-2.5">
+                      <lucide-icon [name]="doc.icon" [size]="20" class="text-primary" />
+                      <div>
+                        <p class="font-semibold text-on-surface">{{ doc.title }}</p>
+                        <span class="text-label text-secondary font-mono">{{ doc.detail }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-label text-on-surface font-semibold font-mono">
+                      <lucide-icon [name]="doc.auditorIcon" [size]="13" class="text-primary" />
+                      {{ doc.auditor }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="flex items-center gap-1">
+                      @for (b of doc.authorizedBanks; track b) {
+                        <span
+                          class="px-1.5 py-0.5 rounded text-badge font-bold"
+                          [class.bg-primary-container]="doc.allBanks"
+                          [class.text-white]="doc.allBanks"
+                          [class.text-on-primary-container]="doc.allBanks"
+                          [class.bg-surface-container]="!doc.allBanks"
+                          [class.text-secondary]="!doc.allBanks"
+                        >
+                          {{ b }}
+                        </span>
+                      }
+                    </div>
+                  </td>
+                  <td class="py-3 px-3 text-right">
+                    <div class="inline-flex items-center gap-1">
+                      <button
+                        type="button"
+                        class="p-1.5 rounded hover:bg-surface-container text-secondary hover:text-on-surface"
+                        title="Consulter"
+                        (click)="openConventionModal()"
+                      >
+                        <lucide-icon name="eye" [size]="16" />
+                      </button>
+                      <button
+                        type="button"
+                        class="p-1.5 rounded hover:bg-surface-container text-secondary hover:text-on-surface"
+                        title="Télécharger"
+                        (click)="downloadCertifiedDossier()"
+                      >
+                        <lucide-icon name="download" [size]="16" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-surface-container mt-4">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-primary"></span>
+          <span class="text-body-sm text-secondary">Chiffrement AES-256 actif sur l'ensemble des téléchargements des banques.</span>
+        </div>
+        <span class="text-label text-secondary font-mono">Dernière mise à jour : Aujourd'hui, 09:30 GMT</span>
+      </div>
+    </div>
+
+    <!-- Journal d'Audit & Signature eIDAS / OHADA (4 cols) -->
+    <div class="lg:col-span-4 flex flex-col gap-5">
+      <!-- Journal des Consultations Analystes -->
+      <div class="card p-5 shadow-sm flex flex-col justify-between flex-1">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-headline-sm text-on-surface font-bold">Audit Trail Banques</h3>
+            <span class="px-2 py-0.5 rounded bg-surface-container text-label text-primary font-semibold font-mono">En Direct</span>
+          </div>
+          <p class="text-body-sm text-secondary mb-4">Historique horodaté des téléchargements et revues par les directions des risques.</p>
+          <div class="flex flex-col gap-2.5">
+            @for (log of auditTrail; track log.action) {
+              <div class="flex items-start gap-2.5 p-2.5 rounded-lg bg-surface-container-low">
+                <lucide-icon [name]="log.icon" [size]="16" class="text-primary mt-0.5 shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="text-body-sm text-on-surface font-semibold truncate">{{ log.analyst }}</p>
+                  <p class="text-label text-secondary truncate">{{ log.action }}</p>
+                  <span class="text-badge text-secondary font-mono">{{ log.time }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <button
+          type="button"
+          class="w-full mt-4 py-2 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-body-sm font-semibold transition-all text-center cursor-pointer"
+          (click)="openConventionModal()"
+        >
+          Consulter le Registre Complet
+        </button>
+      </div>
+
+      <!-- Signature Électronique eIDAS / OHADA -->
+      <div class="card p-5 shadow-sm flex flex-col justify-between bg-surface-container-low border border-primary/20">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 text-white">
+            <lucide-icon name="pen-tool" [size]="20" />
+          </div>
+          <div>
+            <h4 class="text-headline-sm text-on-surface font-bold">Espace de Signature eIDAS</h4>
+            <p class="text-body-sm text-secondary mt-0.5 leading-relaxed">
+              Conformité Acte Uniforme OHADA sur le Droit Commercial Général et signature électronique qualifiée.
+            </p>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 flex items-center justify-between border-t border-surface-container">
+          <div class="flex items-center gap-1.5 text-label text-on-surface font-medium font-mono">
+            <span class="w-2 h-2 rounded-full bg-primary" [class.animate-pulse]="signingState() === 'signing'"></span>
+            <span>{{ signingState() === 'signed' ? 'Signé & Horodaté' : 'Certificat Actif (OTP Dirigeant)' }}</span>
+          </div>
+          <button
+            type="button"
+            class="py-1.5 px-3 rounded-lg bg-primary hover:bg-primary-container text-white text-body-sm font-semibold transition-all cursor-pointer"
+            (click)="signProtocol()"
+            [disabled]="signingState() === 'signing'"
+          >
+            {{ signingState() === 'signed' ? 'Actes Signés' : signingState() === 'signing' ? 'Scellement...' : 'Signer les Actes' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL DE CONVENTION OFFICIELLE DE POOL BANCAIRE (Mockup 2 scellé & imprimable) -->
+<!-- ========================================================================= -->
+@if (showConventionModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto print:p-0 print:bg-white">
+    <div class="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden my-6 border border-slate-200 print:border-none print:shadow-none print:my-0">
+      <!-- Toolbar de document -->
+      <div class="bg-navy text-white px-6 py-3 flex items-center justify-between border-b border-white/10 print:hidden">
+        <div class="flex items-center gap-3">
+          <lucide-icon name="file-check" [size]="20" class="text-brand-teal" />
+          <span class="font-semibold text-body-sm">Document Scellé & Certifié eIDAS / OHADA</span>
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-teal/20 border border-brand-teal text-brand-teal text-badge font-bold uppercase tracking-wider">
+            <lucide-icon name="check-circle-2" [size]="12" /> Validé Pool Bancaire
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-label font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer"
+            (click)="printConvention()"
+          >
+            <lucide-icon name="printer" [size]="14" /> Imprimer
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-label font-semibold text-white bg-primary hover:bg-primary-container border border-primary transition-all cursor-pointer"
+            (click)="downloadCertifiedDossier()"
+          >
+            <lucide-icon name="download" [size]="14" /> Télécharger PDF
+          </button>
+          <button
+            type="button"
+            class="p-1.5 text-navy-muted hover:text-white rounded-md transition-colors cursor-pointer ml-2"
+            (click)="closeConventionModal()"
+            aria-label="Fermer"
+          >
+            <lucide-icon name="x" [size]="20" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Corps officiel de l'acte -->
+      <div class="p-8 sm:p-12 text-slate-800 relative bg-white selection:bg-brand-teal/30">
+        <!-- Filigrane de sécurité -->
+        <div class="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden select-none">
+          <span class="rotate-[-35deg] text-6xl font-extrabold uppercase tracking-widest text-primary/5">
+            FINANÇA SCELLÉ
+          </span>
+        </div>
+
+        <!-- En-tête officiel -->
+        <div class="flex flex-col sm:flex-row justify-between items-start gap-4 pb-6 border-b-2 border-navy mb-8">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-navy flex items-center justify-center text-white font-extrabold text-2xl shadow-sm">
+              F
+            </div>
+            <div>
+              <div class="text-xl font-extrabold text-navy tracking-tight">Finança Risk Suite™</div>
+              <div class="text-xs text-slate-500 font-medium">Plateforme Institutionnelle d'Intermédiation & Notation de Crédit UEMOA/CEMAC</div>
+            </div>
+          </div>
+          <div class="sm:text-right">
+            <span class="font-mono text-xs font-semibold text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded">
+              PROT-SYNDIC-2024-WST-088
+            </span>
+            <div class="text-xs text-slate-500 mt-1">Clôture syndication : 15 Novembre 2026</div>
+            <div class="text-xs text-primary font-semibold flex items-center sm:justify-end gap-1 mt-0.5">
+              <lucide-icon name="shield-check" [size]="12" /> Notation Emprunteur : Grade A- (820/1000)
+            </div>
+          </div>
+        </div>
+
+        <!-- Boîte titre de l'acte -->
+        <div class="text-center bg-slate-50 border border-slate-200 border-l-4 border-l-primary rounded-lg p-5 mb-8">
+          <span class="text-badge font-bold uppercase text-primary tracking-widest block mb-1">
+            Acte Uniforme OHADA portant Organisation des Sûretés & Droit Commercial
+          </span>
+          <h2 class="text-lg sm:text-xl font-extrabold text-navy uppercase tracking-tight">
+            Protocole d'Accord de Financement Syndiqué & Convention de Pool Bancaire
+          </h2>
+          <p class="text-xs text-slate-600 mt-1 font-medium">
+            Facilité de Crédit Multilatérale d'un montant total ferme de <strong>200 000 000 FCFA</strong> (avec option d'adjudication complémentaire à <strong>240 000 000 FCFA</strong>)
+          </p>
+        </div>
+
+        <!-- Section 1 : Parties -->
+        <div class="mb-8">
+          <h3 class="flex items-center gap-2 text-sm font-bold text-navy uppercase tracking-wider pb-2 border-b border-slate-200 mb-4">
+            <span class="w-5 h-5 rounded bg-navy text-white text-xs inline-flex items-center justify-center">1</span>
+            Identification des Parties Contractantes
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div class="border border-slate-200 rounded-lg p-4 bg-white shadow-sm">
+              <span class="text-badge font-bold uppercase text-primary tracking-wider block mb-1">Partie Emprunteuse</span>
+              <h4 class="font-bold text-navy text-sm">WEST DISTRIBUTION SA</h4>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                Société Anonyme de Droit Ivoirien au capital de 100 000 000 FCFA.<br>
+                RCCM : CI-ABJ-2018-B-14209 — N° CC : 1820491 A.<br>
+                Siège social : Boulevard de Marseille, Zone 3, Abidjan (Rép. de Côte d'Ivoire).<br>
+                Représentée par son Directeur Général dûment habilité.
+              </p>
+            </div>
+
+            <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+              <span class="text-badge font-bold uppercase text-primary tracking-wider block mb-1">Chef de File & Agent du Pool</span>
+              <h4 class="font-bold text-navy text-sm">ECOBANK CÔTE D'IVOIRE</h4>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                Société Anonyme avec Conseil d'Administration au capital de 27 500 000 000 FCFA.<br>
+                Agrément Bancaire N° A 0059 J — Siège : Avenue Delafosse, Plateau, Abidjan.<br>
+                Agissant tant en son nom propre qu'en qualité de Mandataire & Banque Agent du syndicat bancaire.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+              <span class="text-badge font-bold uppercase text-primary tracking-wider block mb-1">Institution Financière Multilatérale</span>
+              <h4 class="font-bold text-navy text-sm">BANQUE OUEST AFRICAINE DE DÉVELOPPEMENT (BOAD)</h4>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                Établissement public international régi par le Traité de l'UMOA.<br>
+                Siège : 68, Avenue de la Libération, Lomé (Togo).<br>
+                Décision du Comité de Prêt N° 2024-BOAD-09.
+              </p>
+            </div>
+
+            <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+              <span class="text-badge font-bold uppercase text-primary tracking-wider block mb-1">Banque Partenaire Co-Prêteuse</span>
+              <h4 class="font-bold text-navy text-sm">SOCIÉTÉ GÉNÉRALE CÔTE D'IVOIRE (SGBCI)</h4>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                Société Anonyme au capital de 15 555 555 000 FCFA.<br>
+                Agrément N° A 0012 G — Siège : 5-7, Avenue Joseph Anoma, Abidjan Plateau.<br>
+                Comité de Crédit des Grandes Entreprises & Cautions Marchés.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2 : Tableau des conditions -->
+        <div class="mb-8">
+          <h3 class="flex items-center gap-2 text-sm font-bold text-navy uppercase tracking-wider pb-2 border-b border-slate-200 mb-4">
+            <span class="w-5 h-5 rounded bg-navy text-white text-xs inline-flex items-center justify-center">2</span>
+            Structure & Conditions Financières du Tour de Table
+          </h3>
+          <p class="text-xs text-slate-600 mb-3">
+            Les prêteurs s'accordent irrévocablement pour structurer la syndication selon la ventilation et les caractéristiques techniques ci-dessous :
+          </p>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border border-slate-200">
+              <thead class="bg-slate-100 text-navy font-bold uppercase text-[10px]">
+                <tr>
+                  <th class="p-2.5 border border-slate-200">Établissement Prêteur</th>
+                  <th class="p-2.5 border border-slate-200">Nature du Concours</th>
+                  <th class="p-2.5 border border-slate-200 text-right">Montant (FCFA)</th>
+                  <th class="p-2.5 border border-slate-200 text-center">Quotité</th>
+                  <th class="p-2.5 border border-slate-200 text-center">Durée</th>
+                  <th class="p-2.5 border border-slate-200 text-right">Taux</th>
+                  <th class="p-2.5 border border-slate-200">Statut</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 font-medium">
+                <tr>
+                  <td class="p-2.5 border border-slate-200 font-bold">BOAD</td>
+                  <td class="p-2.5 border border-slate-200">Prêt Moyen Terme (Équipement Froid)</td>
+                  <td class="p-2.5 border border-slate-200 text-right font-mono font-bold">80 000 000</td>
+                  <td class="p-2.5 border border-slate-200 text-center">33.3 %</td>
+                  <td class="p-2.5 border border-slate-200 text-center">36 mois</td>
+                  <td class="p-2.5 border border-slate-200 text-right text-primary font-bold">6.25% Fixe</td>
+                  <td class="p-2.5 border border-slate-200 text-primary font-bold">Accord Ferme</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 border border-slate-200 font-bold">ECOBANK CI (Chef de File)</td>
+                  <td class="p-2.5 border border-slate-200">Crédit Documentaire & BFR</td>
+                  <td class="p-2.5 border border-slate-200 text-right font-mono font-bold">120 000 000</td>
+                  <td class="p-2.5 border border-slate-200 text-center">50.0 %</td>
+                  <td class="p-2.5 border border-slate-200 text-center">12 mois renouv.</td>
+                  <td class="p-2.5 border border-slate-200 text-right text-primary font-bold">6.75% TBB+1.25</td>
+                  <td class="p-2.5 border border-slate-200 text-primary font-bold">Accord Ferme</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 border border-slate-200 font-bold">SOCIÉTÉ GÉNÉRALE CI</td>
+                  <td class="p-2.5 border border-slate-200">Ligne Spot & Découvert Garanti</td>
+                  <td class="p-2.5 border border-slate-200 text-right font-mono font-bold">40 000 000</td>
+                  <td class="p-2.5 border border-slate-200 text-center">16.7 %</td>
+                  <td class="p-2.5 border border-slate-200 text-center">12 mois rev.</td>
+                  <td class="p-2.5 border border-slate-200 text-right">7.10% Indice UEMOA</td>
+                  <td class="p-2.5 border border-slate-200 text-amber-600 font-semibold">Clôture J+2</td>
+                </tr>
+                <tr class="bg-primary/10 font-bold text-primary border-t-2 border-primary">
+                  <td colspan="2" class="p-2.5 border border-slate-200 text-navy uppercase">Total Engagements Fermes & Qualifiés</td>
+                  <td class="p-2.5 border border-slate-200 text-right font-mono text-sm">240 000 000</td>
+                  <td class="p-2.5 border border-slate-200 text-center">100.0 %</td>
+                  <td class="p-2.5 border border-slate-200 text-center">Pondéré</td>
+                  <td class="p-2.5 border border-slate-200 text-right">6.62% Moyen</td>
+                  <td class="p-2.5 border border-slate-200">Spread -288 bps</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 3 : Covenants & Garanties -->
+        <div class="mb-8">
+          <h3 class="flex items-center gap-2 text-sm font-bold text-navy uppercase tracking-wider pb-2 border-b border-slate-200 mb-4">
+            <span class="w-5 h-5 rounded bg-navy text-white text-xs inline-flex items-center justify-center">3</span>
+            Sûretés & Garanties OHADA Constituées
+          </h3>
+          <ul class="space-y-2 text-xs text-slate-700 pl-4 list-disc">
+            <li><strong>Nantissement du Matériel Frigorifique Industriel :</strong> Inscription au RCCM d'Abidjan en rang 1 au profit de la BOAD (couverture minimale 110%, valeur d'inventaire 194 800 000 FCFA).</li>
+            <li><strong>Cession Professionnelle de Créances Commerciales (Dailly-OHADA) :</strong> Cession à hauteur de 120 000 000 FCFA sur les flux de créances certifiées détenues sur la SODECI et hypermarchés.</li>
+            <li><strong>Domiciliation de Recettes Commerciales :</strong> Engagement de domicilier au moins 40% des flux d'encaissement d'exploitation auprès d'Ecobank CI.</li>
+            <li><strong>Cautionnement Solidaire & Indivis :</strong> Engagement personnel du dirigeant plafonné à 50% de la tranche court terme non gagée.</li>
+          </ul>
+        </div>
+
+        <!-- Sceau cryptographique -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 text-xs font-bold text-navy">
+              <lucide-icon name="lock" [size]="16" class="text-primary" />
+              Certification Numérique & Intégrité Cryptographique SHA-256
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">
+              Document généré et scellé automatiquement via le protocole d'intermédiation Finança. Toute altération physique ou logique invalide la présente convention.
+            </p>
+            <div class="font-mono text-[10px] text-primary bg-primary/10 border border-primary/20 p-1.5 rounded mt-2 break-all">
+              HASH : 9e4f7c2a118b6e492fbc04918e9a117b30c5e714652298c1998317ae51a3b860
+            </div>
+          </div>
+          <div class="w-20 h-20 rounded-full border-2 border-dashed border-primary flex flex-col items-center justify-center text-primary text-center text-[8px] font-extrabold uppercase tracking-wider shrink-0 bg-white">
+            <lucide-icon name="file-check" [size]="18" class="mb-0.5" />
+            FINANÇA<br>SCELLÉ<br>2026
+          </div>
+        </div>
+
+        <!-- Signatures OHADA -->
+        <div class="border-t border-slate-200 pt-6">
+          <span class="text-badge font-bold uppercase text-slate-500 tracking-wider block mb-4">
+            Signatures Électroniques Qualifiées (Acte Uniforme OHADA art. 82 et suivants)
+          </span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Pour l'Emprunteur</span>
+              <p class="text-xs font-bold text-navy">M. Amadou Koné</p>
+              <p class="text-[11px] text-slate-500">DG — West Distribution SA</p>
+              <div class="h-12 flex items-center justify-center font-serif italic text-lg text-blue-900 border-b border-slate-300 my-1">
+                A. Koné
+              </div>
+              <span class="text-[9px] text-slate-400 font-mono block">Signé le 15/11/2026 à 10:14 GMT<br>Certificat OTP CI-091</span>
+            </div>
+
+            <div class="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Pour le Chef de File</span>
+              <p class="text-xs font-bold text-navy">Mme K. Diallo</p>
+              <p class="text-[11px] text-slate-500">Direction Structuration — Ecobank CI</p>
+              <div class="h-12 flex items-center justify-center font-serif italic text-lg text-blue-900 border-b border-slate-300 my-1">
+                K. Diallo
+              </div>
+              <span class="text-[9px] text-slate-400 font-mono block">Signé le 15/11/2026 à 11:02 GMT<br>Clef eIDAS CI-ECB-44</span>
+            </div>
+
+            <div class="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Pour l'Institution Multilatérale</span>
+              <p class="text-xs font-bold text-navy">Dr. O. Traoré</p>
+              <p class="text-[11px] text-slate-500">Chef de Division — BOAD Lomé</p>
+              <div class="h-12 flex items-center justify-center font-serif italic text-lg text-blue-900 border-b border-slate-300 my-1">
+                O. Traoré
+              </div>
+              <span class="text-[9px] text-slate-400 font-mono block">Signé le 15/11/2026 à 14:30 GMT<br>Visa Accord 2024-BOAD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer du document -->
+      <div class="bg-slate-50 px-8 py-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
+        <span>Finança Technologies & Institutional Banking Solutions © 2026 — Convention multilatérale certifiée</span>
+        <button
+          type="button"
+          class="font-semibold text-primary hover:underline cursor-pointer print:hidden"
+          (click)="closeConventionModal()"
+        >
+          Fermer la vue
+        </button>
+      </div>
+    </div>
+  </div>
+}

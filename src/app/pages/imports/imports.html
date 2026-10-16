@@ -1,0 +1,427 @@
+<div class="flex w-full flex-col gap-6">
+  <!-- En-tête de page & Commandes Globales -->
+  <header class="card flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-5 shadow-sm">
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-badge uppercase text-primary font-bold tracking-wider">Passerelles Bancaires & Flux OHADA</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+        <span class="text-label text-secondary font-mono">FIPS 140-3 Compliant</span>
+      </div>
+      <h1 class="text-headline-lg text-on-surface font-bold tracking-tight">Imports & Passerelles Sécurisées (Open Banking & ERP)</h1>
+      <div class="flex flex-wrap items-center gap-2 mt-1">
+        <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-badge font-bold">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          Connectivité Active · BCEAO Secure Hub
+        </div>
+        <span class="text-body-sm text-secondary">24 Banques Partenaires Réseau UEMOA · Chiffrement TLS 1.3 End-to-End</span>
+      </div>
+    </div>
+
+    <!-- Actions Rapides -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors shadow-sm text-body-sm font-semibold cursor-pointer"
+        (click)="syncDirectApi()"
+        [disabled]="syncingApi()"
+      >
+        <lucide-icon name="refresh-cw" [size]="16" class="text-primary" [class.animate-spin]="syncingApi()" />
+        <span>{{ syncingApi() ? 'Interrogation Hub BCEAO...' : 'Synchroniser Flux Directs (API)' }}</span>
+      </button>
+
+      <label class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-primary text-white hover:bg-primary-container transition-colors shadow-sm text-body-sm font-semibold cursor-pointer">
+        <lucide-icon name="cloud-upload" [size]="16" />
+        <span>Importer un Fichier (MT940/Liasse)</span>
+        <input type="file" class="hidden" (change)="onFileSelected($event)" accept=".mt940,.xml,.csv,.xlsx,.pdf" />
+      </label>
+    </div>
+  </header>
+
+  <!-- KPI Banner / Ingestion & Intégrité -->
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- KPI 1 -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="flex items-center justify-between">
+        <span class="text-badge uppercase text-secondary font-bold">Flux Traités (Mois en cours)</span>
+        <span class="text-label px-2 py-0.5 rounded bg-primary/15 text-primary font-bold font-mono">+18.4%</span>
+      </div>
+      <div class="my-3">
+        <div class="tabular text-headline-lg font-bold text-on-surface">1 428</div>
+        <div class="text-body-sm text-secondary mt-1 flex items-center gap-1">
+          <lucide-icon name="check-circle-2" [size]="14" class="text-primary" />
+          <span>100% rapprochés sans anomalie</span>
+        </div>
+      </div>
+      <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+        <div class="bg-primary h-full rounded-full" style="width: 100%"></div>
+      </div>
+    </div>
+
+    <!-- KPI 2 -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="flex items-center justify-between">
+        <span class="text-badge uppercase text-secondary font-bold">Passerelles Actives</span>
+        <span class="text-label px-2 py-0.5 rounded bg-surface-container text-secondary font-bold font-mono">3 Connexions</span>
+      </div>
+      <div class="my-3">
+        <div class="tabular text-headline-lg font-bold text-on-surface">3 / 3</div>
+        <div class="text-body-sm text-secondary mt-1 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-primary"></span>
+          <span>BOAD, Ecobank CI, SGBCI</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between text-label text-secondary font-mono">
+        <span>Latence moy.</span>
+        <span class="font-bold text-primary">24 ms</span>
+      </div>
+    </div>
+
+    <!-- KPI 3 -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="flex items-center justify-between">
+        <span class="text-badge uppercase text-secondary font-bold">Réconciliation IA SYSCOHADA</span>
+        <span class="text-label px-2 py-0.5 rounded bg-brand-teal/20 text-brand-teal font-bold font-mono">Auto-Learn</span>
+      </div>
+      <div class="my-3">
+        <div class="tabular text-headline-lg font-bold text-primary font-mono">99.4%</div>
+        <div class="text-body-sm text-secondary mt-1">
+          Auto-affectation Cl. 40, 51, 60, 70
+        </div>
+      </div>
+      <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+        <div class="bg-primary h-full rounded-full" style="width: 99.4%"></div>
+      </div>
+    </div>
+
+    <!-- KPI 4 -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="flex items-center justify-between">
+        <span class="text-badge uppercase text-secondary font-bold">Scellement Légal</span>
+        <lucide-icon name="shield-check" [size]="18" class="text-primary" />
+      </div>
+      <div class="my-3">
+        <div class="text-body-md font-bold text-on-surface truncate font-mono">SHA-256 #8F0A2C9</div>
+        <div class="text-body-sm text-secondary mt-1">
+          Certifié aujourd'hui à 08:30 GMT
+        </div>
+      </div>
+      <div class="flex items-center justify-between text-label text-secondary font-mono">
+        <span>Horodatage DGI</span>
+        <span class="font-semibold text-on-surface">Validé UEMOA</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento Section : Ingestion Interactive + Connecteurs Bancaires -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+    <!-- Zone de Téléversement & Pipeline OCR (7 Cols) -->
+    <div class="lg:col-span-7 flex flex-col gap-5">
+      <div class="card p-5 shadow-sm flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0">
+              <lucide-icon name="scan-line" [size]="20" />
+            </div>
+            <div>
+              <h2 class="text-headline-sm text-on-surface font-semibold">Zone d'Ingestion & Moteur OCR Intelligent</h2>
+              <p class="text-body-sm text-secondary">Parser automatique multi-normes : MT940, CAMT.053, CSV bancaire, PDF Liasse Fiscale OHADA</p>
+            </div>
+          </div>
+          <span class="text-label px-2 py-0.5 rounded bg-surface-container text-secondary font-mono">Queue: 0 en attente</span>
+        </div>
+
+        <!-- Drag & Drop Dropzone -->
+        <label
+          class="border-2 border-dashed rounded-xl p-8 transition-all cursor-pointer flex flex-col items-center justify-center text-center group"
+          [class.border-primary]="isDragging()"
+          [class.bg-primary/10]="isDragging()"
+          [class.border-outline-variant]="!isDragging()"
+          [class.bg-surface-container-low/40]="!isDragging()"
+          [class.hover:bg-surface-container-low]="!isDragging()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        >
+          <div class="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
+            <lucide-icon name="cloud-upload" [size]="24" />
+          </div>
+          <span class="text-body-md font-semibold text-on-surface">Glissez-déposez vos fichiers comptables ou bancaires</span>
+          <span class="text-body-sm text-secondary mt-1">Formats acceptés : MT940, CAMT.053, OFX, Excel (.xlsx), PDF certifié jusqu'à 50 Mo</span>
+          <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
+            <span class="text-badge px-2 py-0.5 rounded bg-surface-container text-on-surface font-medium font-mono">MT940 UEMOA</span>
+            <span class="text-badge px-2 py-0.5 rounded bg-surface-container text-on-surface font-medium font-mono">Liasse DGI PDF</span>
+            <span class="text-badge px-2 py-0.5 rounded bg-surface-container text-on-surface font-medium font-mono">Relevé BCEAO-Norm</span>
+          </div>
+          <input type="file" class="hidden" (change)="onFileSelected($event)" accept=".mt940,.xml,.csv,.xlsx,.pdf" />
+        </label>
+
+        <!-- Moteur d'Extraction en Direct (Live preview) -->
+        <div class="p-3.5 rounded-lg bg-surface-container-low">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-badge uppercase text-secondary font-bold flex items-center gap-1.5 font-mono">
+              <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              Aperçu Ingestion Récente : RELEVE_ECOBANK_OCT2026.MT940
+            </span>
+            <span class="text-label text-primary font-bold font-mono">100% Parsé</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-body-sm">
+              <thead class="bg-surface-container text-secondary text-label font-mono">
+                <tr>
+                  <th class="py-1.5 px-2.5">Date Valeur</th>
+                  <th class="py-1.5 px-2.5">Libellé Bancaire</th>
+                  <th class="py-1.5 px-2.5">Imputation SYSCOHADA</th>
+                  <th class="py-1.5 px-2.5 text-right">Montant (FCFA)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-surface-container font-mono text-label">
+                <tr class="hover:bg-surface-container-lowest transition-colors">
+                  <td class="py-2 px-2.5 text-secondary">28/10/2026</td>
+                  <td class="py-2 px-2.5 text-on-surface font-medium font-sans">VIR RECU SODECI CI002931</td>
+                  <td class="py-2 px-2.5"><span class="px-2 py-0.5 rounded bg-primary/15 text-primary font-bold">411100 - Clients CI</span></td>
+                  <td class="py-2 px-2.5 text-right text-primary font-bold">+18 450 000</td>
+                </tr>
+                <tr class="hover:bg-surface-container-lowest transition-colors">
+                  <td class="py-2 px-2.5 text-secondary">28/10/2026</td>
+                  <td class="py-2 px-2.5 text-on-surface font-medium font-sans">PRELEVEMENT TAXE DGI RTS</td>
+                  <td class="py-2 px-2.5"><span class="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-fixed font-bold">447200 - Impôts & Taxes</span></td>
+                  <td class="py-2 px-2.5 text-right text-error font-bold">-2 140 320</td>
+                </tr>
+                <tr class="hover:bg-surface-container-lowest transition-colors">
+                  <td class="py-2 px-2.5 text-secondary">27/10/2026</td>
+                  <td class="py-2 px-2.5 text-on-surface font-medium font-sans">REMISE CHEQUE SGI WEST AFRICA</td>
+                  <td class="py-2 px-2.5"><span class="px-2 py-0.5 rounded bg-primary/15 text-primary font-bold">514000 - Chèques à l'Enc.</span></td>
+                  <td class="py-2 px-2.5 text-right text-primary font-bold">+7 800 000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connecteurs Bancaires & Passerelles UEMOA (5 Cols) -->
+    <div class="lg:col-span-5 flex flex-col gap-5">
+      <div class="card p-5 shadow-sm flex-1 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <lucide-icon name="network" [size]="20" class="text-primary" />
+              <h2 class="text-headline-sm text-on-surface font-semibold">Passerelles Bancaires Directes</h2>
+            </div>
+            <span class="text-badge uppercase px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold font-mono">Direct API</span>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Connecteur 1 : Ecobank CI -->
+            <div class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center font-mono text-label font-bold text-on-surface">
+                    ECO
+                  </div>
+                  <div>
+                    <div class="text-body-md font-bold text-on-surface leading-tight">Ecobank Côte d'Ivoire</div>
+                    <div class="text-label text-secondary">API Open Banking UEMOA · CI059 01001</div>
+                  </div>
+                </div>
+                <span class="flex items-center gap-1 text-badge uppercase px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                  En Ligne
+                </span>
+              </div>
+              <div class="flex items-center justify-between pt-1 border-t border-surface-container text-label font-mono">
+                <span class="text-secondary">Solde : <strong class="text-on-surface">42 850 000 FCFA</strong></span>
+                <button
+                  type="button"
+                  class="text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                  (click)="configureOAuth('Ecobank CI')"
+                >
+                  <span>Jetons OAuth</span>
+                  <lucide-icon name="chevron-right" [size]="14" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Connecteur 2 : Société Générale CI -->
+            <div class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center font-mono text-label font-bold text-on-surface">
+                    SGCI
+                  </div>
+                  <div>
+                    <div class="text-body-md font-bold text-on-surface leading-tight">Société Générale CI</div>
+                    <div class="text-label text-secondary">Protocole EBICS TS · Bi-clé RSA 4096</div>
+                  </div>
+                </div>
+                <span class="flex items-center gap-1 text-badge uppercase px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  En Ligne
+                </span>
+              </div>
+              <div class="flex items-center justify-between pt-1 border-t border-surface-container text-label font-mono">
+                <span class="text-secondary">Ligne Spot : <strong class="text-on-surface">40 000 000 FCFA</strong></span>
+                <button
+                  type="button"
+                  class="text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                  (click)="configureOAuth('SGCI')"
+                >
+                  <span>Clés PKI</span>
+                  <lucide-icon name="chevron-right" [size]="14" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Connecteur 3 : BOAD -->
+            <div class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center font-mono text-label font-bold text-on-surface">
+                    BOAD
+                  </div>
+                  <div>
+                    <div class="text-body-md font-bold text-on-surface leading-tight">Banque Ouest Africaine de Dévelop.</div>
+                    <div class="text-label text-secondary">Convention Prêt Structuré · Reporting Auto</div>
+                  </div>
+                </div>
+                <span class="flex items-center gap-1 text-badge uppercase px-2 py-0.5 rounded-full bg-surface-container text-secondary font-bold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  Synchronisé
+                </span>
+              </div>
+              <div class="flex items-center justify-between pt-1 border-t border-surface-container text-label font-mono">
+                <span class="text-secondary">Amortissement Tranche B</span>
+                <button
+                  type="button"
+                  class="text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                  (click)="configureOAuth('BOAD')"
+                >
+                  <span>Rapport Conforme</span>
+                  <lucide-icon name="external-link" [size]="14" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Connecteur 4 : Télédéclaration Fiscale -->
+            <div class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center font-mono text-label font-bold text-on-surface">
+                    DGI
+                  </div>
+                  <div>
+                    <div class="text-body-md font-bold text-on-surface leading-tight">Portail e-Impôts & CNSS (CI)</div>
+                    <div class="text-label text-secondary">Télédéclarations TVA & Déclarations Salariales</div>
+                  </div>
+                </div>
+                <span class="flex items-center gap-1 text-badge uppercase px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
+                  <lucide-icon name="badge-check" [size]="12" />
+                  Certifié
+                </span>
+              </div>
+              <div class="flex items-center justify-between pt-1 border-t border-surface-container text-label font-mono">
+                <span class="text-secondary">Dernier quitus : 15/10/2026</span>
+                <span class="text-primary font-semibold">Télétransmission OK</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historique Récent des Imports & Journal d'Audit (Audit Trail FIPS) -->
+  <div class="card p-5 shadow-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div>
+        <h2 class="text-headline-sm text-on-surface font-semibold">Journal d'Audit des Ingestions & Scellements Cryptographiques</h2>
+        <p class="text-body-sm text-secondary">Traçabilité complète des flux entrants conformément aux exigences SYSCOHADA et normes d'audit BCEAO</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-lg bg-surface-container font-mono text-label text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-1.5 cursor-pointer"
+        >
+          <lucide-icon name="filter" [size]="14" />
+          <span>Filtrer par Source</span>
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-lg bg-surface-container font-mono text-label text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-1.5 cursor-pointer"
+          (click)="exportAuditTrail()"
+        >
+          <lucide-icon name="download" [size]="14" />
+          <span>Export Audit (CSV)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tableau Haute Densité Institutionnelle -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-body-sm border-collapse">
+        <thead class="bg-surface-container text-secondary font-mono text-label uppercase tracking-wider">
+          <tr>
+            <th class="py-2.5 px-3">Date & Heure (GMT)</th>
+            <th class="py-2.5 px-3">Fichier / Source Ingestion</th>
+            <th class="py-2.5 px-3">Type de Flux</th>
+            <th class="py-2.5 px-3 text-right">Écritures</th>
+            <th class="py-2.5 px-3 text-right">Total Flux (FCFA)</th>
+            <th class="py-2.5 px-3">Empreinte SHA-256</th>
+            <th class="py-2.5 px-3">Statut Validation</th>
+            <th class="py-2.5 px-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-container font-mono text-label">
+          @for (log of auditLogs; track log.source) {
+            <tr class="hover:bg-surface-container-low transition-colors">
+              <td class="py-2.5 px-3 text-on-surface font-semibold">{{ log.date }}</td>
+              <td class="py-2.5 px-3">
+                <div class="flex items-center gap-2">
+                  <lucide-icon [name]="log.icon" [size]="16" class="text-primary" />
+                  <span class="text-body-sm text-on-surface font-semibold font-sans">{{ log.source }}</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3">
+                <span class="px-2 py-0.5 rounded bg-surface-container text-secondary font-medium">{{ log.type }}</span>
+              </td>
+              <td class="py-2.5 px-3 text-right text-on-surface font-bold">{{ log.entriesCount }}</td>
+              <td class="py-2.5 px-3 text-right text-on-surface font-bold">{{ log.totalFcfa | fcfa }}</td>
+              <td class="py-2.5 px-3 text-secondary text-xs">{{ log.hash }}</td>
+              <td class="py-2.5 px-3">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/15 text-primary text-badge font-bold uppercase">
+                  <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  {{ log.status }}
+                </span>
+              </td>
+              <td class="py-2.5 px-3 text-right">
+                <button
+                  type="button"
+                  class="p-1.5 rounded hover:bg-surface-container text-secondary hover:text-primary transition-colors cursor-pointer"
+                  title="Télécharger le certificat de scellement"
+                  (click)="exportAuditTrail()"
+                >
+                  <lucide-icon name="download" [size]="16" />
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pied de tableau avec pagination -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-surface-container mt-2 text-body-sm">
+      <div class="text-label text-secondary font-mono">
+        Affichage de <strong class="text-on-surface">1 - 4</strong> sur 86 transferts scellés (Exercice 2026)
+      </div>
+      <div class="flex items-center gap-1 font-mono text-label">
+        <button type="button" class="px-2.5 py-1 rounded bg-surface-container text-secondary" disabled>Précédent</button>
+        <button type="button" class="px-2.5 py-1 rounded bg-primary text-white font-bold">1</button>
+        <button type="button" class="px-2.5 py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high">2</button>
+        <button type="button" class="px-2.5 py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high">3</button>
+        <button type="button" class="px-2.5 py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high">Suivant</button>
+      </div>
+    </div>
+  </div>
+</div>

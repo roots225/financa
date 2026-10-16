@@ -1,0 +1,633 @@
+<div class="flex flex-col w-full space-y-6">
+  <!-- En-tête Réglementaire & Cockpit de Télétransmission -->
+  <header class="flex flex-col gap-4 bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-surface-container/60">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-container text-on-primary-container text-badge font-bold uppercase shadow-sm text-white">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed animate-ping "></span>
+            SYSCOHADA Révisé 2024
+          </span>
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-badge font-semibold uppercase">
+            <span class="material-symbols-outlined text-[14px] text-primary">cloud_done</span>
+            Passerelle e-Impôts DGI Active
+          </span>
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-high text-on-surface text-badge font-semibold uppercase">
+            <span class="material-symbols-outlined text-[14px] text-primary">verified_user</span>
+            36/36 Tableaux Contrôlés
+          </span>
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-badge font-semibold uppercase">
+            <span class="material-symbols-outlined text-[14px] text-secondary">approval</span>
+            Audit Mazars Validé
+          </span>
+        </div>
+        <h1 class="text-headline-lg font-bold text-on-surface tracking-tight mt-1">
+          Liasse Fiscale SYSCOHADA & Télédéclaration DGI
+        </h1>
+        <p class="text-body-md text-on-surface-variant max-w-4xl">
+          Génération, contrôle de cohérence, scellement cryptographique SHA-256 et télétransmission des 36 tableaux légaux —
+          <span class="font-semibold text-on-surface">{{ fin.entity.name }}</span>
+          <span class="font-mono text-label text-on-surface-variant">(RCCM : CI-ABJ-2018-B-14209 · CC : 1820491 A)</span>
+        </p>
+      </div>
+
+      <!-- Actions Rapides -->
+      <div class="flex items-center gap-2 flex-wrap self-start lg:self-center">
+        <button
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-body-sm font-semibold hover:bg-surface-variant transition-colors shadow-sm cursor-pointer"
+          (click)="launchAudit()"
+          type="button"
+        >
+          <span class="material-symbols-outlined text-[18px]">fact_check</span>
+          <span>Lancer l'Audit Fiscal Préventif</span>
+        </button>
+        <button
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-300 text-on-secondary text-body-sm font-semibold hover:bg-on-secondary-fixed-variant transition-colors shadow-sm cursor-pointer"
+          (click)="generatePdfCertifie()"
+          type="button"
+        >
+          <span class="material-symbols-outlined text-[18px]">download_for_offline</span>
+          <span>Générer PDF Certifié (1 à 36)</span>
+        </button>
+        <button
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-body-sm font-bold tracking-tight hover:bg-on-primary-fixed-variant transition-all shadow-md hover:shadow-lg cursor-pointer disabled:opacity-75"
+          [disabled]="isTransmitting()"
+          (click)="teletransmitDgi()"
+          type="button"
+        >
+          @if (isTransmitting()) {
+            <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>Télétransmission...</span>
+          } @else {
+            <span class="material-symbols-outlined text-[18px]">send_time_extension</span>
+            <span>Télétransmettre à la DGI</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Bannière DGI Scellement & Intégrité -->
+    <div class="mt-2 p-3 rounded-xl bg-surface-container-low flex flex-col md:flex-row md:items-center justify-between gap-3 border border-surface-container/60">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 text-white">
+          <span class="material-symbols-outlined text-[20px]">enhanced_encryption</span>
+        </div>
+        <div class="text-xs">
+          <span class="font-semibold text-on-surface">Empreinte Cryptographique de la Liasse :</span>
+          <span class="font-mono text-primary select-all ml-1 break-all">SHA-256: d8f4e29c87b140ae699318a4a754b2fc138e65ba79e2f9d6c4e0b5107936a1e9</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 text-xs font-mono text-on-surface-variant shrink-0">
+        <span>Horodatage : <strong class="text-on-surface">2025-03-08 11:42:19 GMT</strong></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+        <span class="text-primary font-semibold flex items-center gap-1">
+          <span class="material-symbols-outlined text-[15px]">check_circle</span> Concordance 100%
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Grille des 5 Indicateurs Fiscaux Majeurs (KPIs) -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4">
+    <!-- KPI 1 : Résultat Fiscal Imposable -->
+    <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-container/60 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="text-badge text-on-surface-variant uppercase tracking-wider font-semibold">Résultat Fiscal Imposable</span>
+          <span class="material-symbols-outlined text-primary text-[20px]">account_balance</span>
+        </div>
+        <div class="mt-2 font-mono text-headline-sm font-bold text-on-surface leading-none">
+          21 845 000
+          <span class="font-mono text-label text-secondary font-normal">FCFA</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-2 text-xs space-y-1 border-t border-surface-container/60">
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>Comptable :</span>
+          <span class="font-mono font-medium text-on-surface">18 635 000</span>
+        </div>
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>+ Réintégrations :</span>
+          <span class="font-mono font-medium text-error">+4 810 000</span>
+        </div>
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>- Déductions :</span>
+          <span class="font-mono font-medium text-primary">-1 600 000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 2 : Impôt BIC Exigible -->
+    <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-container/60 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="text-badge text-on-surface-variant uppercase tracking-wider font-semibold">Impôt BIC Exigible (25%)</span>
+          <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface text-badge font-bold uppercase">Taux UEMOA</span>
+        </div>
+        <div class="mt-2 font-mono text-headline-sm font-bold text-on-surface leading-none">
+          5 461 250
+          <span class="font-mono text-label text-secondary font-normal">FCFA</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-2 text-xs space-y-1.5 border-t border-surface-container/60">
+        <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+          <div class="bg-primary h-full rounded-full" style="width: 73%;"></div>
+        </div>
+        <div class="flex justify-between font-mono text-label text-on-surface-variant">
+          <span>Acomptes (73%) : 4 000 000</span>
+        </div>
+        <div class="flex justify-between text-body-sm font-semibold text-primary pt-0.5">
+          <span>Solde à liquider :</span>
+          <span class="font-mono">1 461 250 FCFA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 3 : TVA Nette Mensuelle -->
+    <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-container/60 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="text-badge text-on-surface-variant uppercase tracking-wider font-semibold">TVA Nette du Mois</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container text-badge text-white font-bold">
+            Déclarée
+          </span>
+        </div>
+        <div class="mt-2 font-mono text-headline-sm font-bold text-on-surface leading-none">
+          2 840 000
+          <span class="font-mono text-label text-secondary font-normal">FCFA</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-2 text-xs space-y-1 border-t border-surface-container/60">
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>Collectée (18%) :</span>
+          <span class="font-mono font-medium text-on-surface">11 500 000</span>
+        </div>
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>Déductible :</span>
+          <span class="font-mono font-medium text-on-surface">8 660 000</span>
+        </div>
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>Crédit antérieur :</span>
+          <span class="font-mono font-medium text-on-surface">0 FCFA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 4 : Charges Sociales & IPTS -->
+    <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-container/60 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="text-badge text-on-surface-variant uppercase tracking-wider font-semibold">Charges Sociales CNSS & IPTS</span>
+          <span class="material-symbols-outlined text-secondary text-[20px]">badge</span>
+        </div>
+        <div class="mt-2 font-mono text-headline-sm font-bold text-on-surface leading-none">
+          4 120 000
+          <span class="font-mono text-label text-secondary font-normal">FCFA</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-2 text-xs space-y-1 border-t border-surface-container/60">
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>Effectif Déclaré :</span>
+          <span class="font-semibold text-on-surface">42 salariés</span>
+        </div>
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>Cotisations CNSS :</span>
+          <span class="font-mono text-on-surface">2 940 000</span>
+        </div>
+        <div class="flex justify-between text-on-surface-variant text-body-sm">
+          <span>Quitus Social :</span>
+          <span class="text-primary font-semibold">Délivré N°742</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 5 : Score de Risque Fiscal DGI -->
+    <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-container/60 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="text-badge text-on-surface-variant uppercase tracking-wider font-semibold">Score Risque Fiscal DGI</span>
+          <span class="material-symbols-outlined text-primary text-[20px]">shield</span>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="font-mono text-headline-md font-bold text-primary leading-none">0.08</span>
+          <span class="font-mono text-label text-on-surface-variant">/ 1.00</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-2 text-xs space-y-1 border-t border-surface-container/60">
+        <div class="flex items-center gap-1.5 text-primary font-semibold">
+          <span class="w-2 h-2 rounded-full bg-primary"></span>
+          <span>Risque Très Faible</span>
+        </div>
+        <p class="text-on-surface-variant text-[11px] leading-snug">
+          100% de concordance TVA / Grand Livre de Ventes (Classe 70).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Disposition Principale : Matrice des 36 Tableaux (Gauche) & Guichet DGI / Contrôles (Droite) -->
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+    <!-- COLONNE GAUCHE (8 colonnes) : Matrice Interactive des 36 Tableaux -->
+    <section class="xl:col-span-8 flex flex-col space-y-4">
+      <!-- Barre d'outils et de filtrage des tableaux -->
+      <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-container/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Sélecteur de volets réglementaires -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+          <button
+            class="px-3 py-1.5 rounded-lg text-body-sm font-semibold transition-all whitespace-nowrap cursor-pointer"
+            [class.bg-primary]="activeCategory() === 'all'"
+            [class.text-on-primary]="activeCategory() === 'all'"
+            [class.bg-surface-container]="activeCategory() !== 'all'"
+            [class.text-on-surface-variant]="activeCategory() !== 'all'"
+            (click)="activeCategory.set('all')"
+            type="button"
+          >
+            Tous les 36 Tableaux
+          </button>
+          <button
+            class="px-3 py-1.5 rounded-lg text-body-sm font-semibold transition-all whitespace-nowrap cursor-pointer"
+            [class.bg-primary]="activeCategory() === 'etats'"
+            [class.text-on-primary]="activeCategory() === 'etats'"
+            [class.bg-surface-container]="activeCategory() !== 'etats'"
+            [class.text-on-surface-variant]="activeCategory() !== 'etats'"
+            (click)="activeCategory.set('etats')"
+            type="button"
+          >
+            États Financiers (1 à 4)
+          </button>
+          <button
+            class="px-3 py-1.5 rounded-lg text-body-sm font-semibold transition-all whitespace-nowrap cursor-pointer"
+            [class.bg-primary]="activeCategory() === 'resultat'"
+            [class.text-on-primary]="activeCategory() === 'resultat'"
+            [class.bg-surface-container]="activeCategory() !== 'resultat'"
+            [class.text-on-surface-variant]="activeCategory() !== 'resultat'"
+            (click)="activeCategory.set('resultat')"
+            type="button"
+          >
+            Résultat Fiscal (5 à 12)
+          </button>
+          <button
+            class="px-3 py-1.5 rounded-lg text-body-sm font-semibold transition-all whitespace-nowrap cursor-pointer"
+            [class.bg-primary]="activeCategory() === 'annexes'"
+            [class.text-on-primary]="activeCategory() === 'annexes'"
+            [class.bg-surface-container]="activeCategory() !== 'annexes'"
+            [class.text-on-surface-variant]="activeCategory() !== 'annexes'"
+            (click)="activeCategory.set('annexes')"
+            type="button"
+          >
+            Annexes & Actifs (13 à 24)
+          </button>
+          <button
+            class="px-3 py-1.5 rounded-lg text-body-sm font-semibold transition-all whitespace-nowrap cursor-pointer"
+            [class.bg-primary]="activeCategory() === 'engagements'"
+            [class.text-on-primary]="activeCategory() === 'engagements'"
+            [class.bg-surface-container]="activeCategory() !== 'engagements'"
+            [class.text-on-surface-variant]="activeCategory() !== 'engagements'"
+            (click)="activeCategory.set('engagements')"
+            type="button"
+          >
+            Engagements (25 à 36)
+          </button>
+        </div>
+
+        <!-- Recherche et statut de conciliation global -->
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="relative w-48 sm:w-60">
+            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[16px]">filter_list</span>
+            <input
+              class="w-full h-8 pl-8 pr-2.5 rounded-lg bg-surface-container-low text-body-sm text-on-surface focus:outline-none focus:bg-surface-container-lowest border border-surface-container"
+              placeholder="Filtrer un tableau..."
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+            />
+          </div>
+          <button
+            class="h-8 px-2.5 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center font-mono text-label cursor-pointer"
+            (click)="revalidateConcordances()"
+            title="Revalider les concordances"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-[16px]">sync</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tableau Institutionnel des Tableaux SYSCOHADA -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-surface-container/60">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low text-on-surface-variant text-badge uppercase tracking-wider font-semibold">
+                <th class="py-3 px-4">Code</th>
+                <th class="py-3 px-4">Intitulé Officiel & Cadre SYSCOHADA</th>
+                <th class="py-3 px-4 text-right">Montant Synthèse</th>
+                <th class="py-3 px-4 text-center">Écart Concil.</th>
+                <th class="py-3 px-4 text-center">Contrôle SHA</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container text-body-sm">
+              @for (tab of filteredTableaux(); track tab.code) {
+                <tr class="hover:bg-surface-container-low/60 transition-colors">
+                  <td class="py-3 px-4 font-mono text-label font-bold text-primary">{{ tab.code }}</td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center gap-2">
+                      <span class="font-semibold text-on-surface">{{ tab.title }}</span>
+                      @if (tab.badge) {
+                        <span class="px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed font-mono text-[10px] uppercase font-bold">{{ tab.badge }}</span>
+                      }
+                    </div>
+                    <div class="text-xs text-on-surface-variant">{{ tab.details }}</div>
+                  </td>
+                  <td class="py-3 px-4 text-right font-mono font-semibold text-on-surface">
+                    {{ tab.amount | fcfa }}
+                  </td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex items-center gap-1 font-mono text-label text-primary font-bold">
+                      <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> {{ tab.delta }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-primary font-mono text-badge font-semibold">
+                      <span class="material-symbols-outlined text-[13px]">lock</span> Scellé
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 text-right space-x-1">
+                    <button
+                      class="p-1.5 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors cursor-pointer"
+                      (click)="visualiserTableau(tab)"
+                      title="Visualiser la feuille"
+                      type="button"
+                    >
+                      <span class="material-symbols-outlined text-[18px]">visibility</span>
+                    </button>
+                    <button
+                      class="p-1.5 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer"
+                      (click)="exporterEdiXml(tab)"
+                      title="Exporter EDI/XML"
+                      type="button"
+                    >
+                      <span class="material-symbols-outlined text-[18px]">code</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pied du tableau : Pagination et statut d'intégrité -->
+        <div class="p-3 bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-on-surface-variant border-t border-surface-container">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-on-surface">Affichage : {{ filteredTableaux().length }} sur 36 tableaux légaux</span>
+            <span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span>
+            <span>Tous les 36 états sont scellés et prêts pour transmission</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <button class="px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface font-semibold shadow-sm cursor-pointer" type="button">1</button>
+            <button class="px-2.5 py-1 rounded hover:bg-surface-container text-on-surface-variant cursor-pointer" type="button">2</button>
+            <button class="px-2.5 py-1 rounded hover:bg-surface-container text-on-surface-variant cursor-pointer" type="button">3</button>
+            <button class="px-2.5 py-1 rounded hover:bg-surface-container text-on-surface-variant cursor-pointer" type="button">4</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc : Décomposition Visuelle des Réintégrations & Déductions Fiscales -->
+      <div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-surface-container/60 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-headline-sm font-bold text-on-surface">Rapprochement Fiscal : Du Résultat Comptable au Résultat Imposable</h3>
+            <p class="text-body-sm text-on-surface-variant">Analyse granulaire des retraitements selon le Code Général des Impôts (CGI)</p>
+          </div>
+          <span class="font-mono text-label px-2.5 py-1 rounded bg-surface-container text-on-surface font-bold">Tableaux 9 & 10</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Col 1 : Résultat Comptable -->
+          <div class="p-4 rounded-xl bg-surface-container-low flex flex-col justify-between border border-surface-container/60">
+            <div>
+              <span class="text-badge text-on-surface-variant uppercase font-semibold">Point de Départ Comptable</span>
+              <div class="mt-1 font-mono text-headline-sm font-bold text-on-surface">18 635 000 <span class="text-xs font-normal">FCFA</span></div>
+              <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Bénéfice net certifié après impôt différé et amortissements comptables.</p>
+            </div>
+            <div class="mt-3 pt-2 text-xs text-on-surface-variant font-mono border-t border-surface-container/60">Ligne 36 TFT concordante</div>
+          </div>
+
+          <!-- Col 2 : Réintégrations Fiscales -->
+          <div class="p-4 rounded-xl bg-surface-container-low flex flex-col justify-between border border-surface-container/60">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-badge text-error uppercase font-bold">+ Réintégrations Légales</span>
+                <span class="font-mono text-label font-bold text-error">+4 810 000 FCFA</span>
+              </div>
+              <ul class="mt-2 space-y-1.5 text-xs text-on-surface-variant">
+                <li class="flex justify-between">
+                  <span>Amort. Véhicules VP (>20M) :</span>
+                  <span class="font-mono font-medium text-on-surface">2 150 000</span>
+                </li>
+                <li class="flex justify-between">
+                  <span>Dépenses somptuaires & amendes :</span>
+                  <span class="font-mono font-medium text-on-surface">860 000</span>
+                </li>
+                <li class="flex justify-between">
+                  <span>Provisions non déductibles :</span>
+                  <span class="font-mono font-medium text-on-surface">1 800 000</span>
+                </li>
+              </ul>
+            </div>
+            <div class="mt-3 pt-2 text-xs text-primary font-semibold flex items-center gap-1 border-t border-surface-container/60">
+              <span class="material-symbols-outlined text-[14px]">check</span> Validé par l'auditeur Mazars
+            </div>
+          </div>
+
+          <!-- Col 3 : Déductions Fiscales -->
+          <div class="p-4 rounded-xl bg-surface-container-low flex flex-col justify-between border border-surface-container/60">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-badge text-primary uppercase font-bold">- Déductions Autorisées</span>
+                <span class="font-mono text-label font-bold text-primary">-1 600 000 FCFA</span>
+              </div>
+              <ul class="mt-2 space-y-1.5 text-xs text-on-surface-variant">
+                <li class="flex justify-between">
+                  <span>Plus-values nettes réinvesties :</span>
+                  <span class="font-mono font-medium text-on-surface">1 100 000</span>
+                </li>
+                <li class="flex justify-between">
+                  <span>Revenus mobiliers exonérés (BCEAO) :</span>
+                  <span class="font-mono font-medium text-on-surface">500 000</span>
+                </li>
+              </ul>
+            </div>
+            <div class="mt-3 pt-2 text-xs font-mono font-bold text-on-surface flex items-center justify-between border-t border-surface-container/60">
+              <span>Résultat Imposable :</span>
+              <span class="text-primary">21 845 000 FCFA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLONNE DROITE (4 colonnes) : Télétransmission e-Impôts, Calendrier & Moteur Préventif -->
+    <aside class="xl:col-span-4 flex flex-col space-y-4">
+      <!-- Carte : Guichet Unique de Télétransmission e-Impôts CI -->
+      <div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-surface-container/60 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[24px]">cloud_sync</span>
+            </div>
+            <div>
+              <h3 class="text-body-md font-bold text-on-surface">e-Impôts DGI Direct</h3>
+              <p class="font-mono text-label text-primary font-semibold">Passerelle M2M Sécurisée</p>
+            </div>
+          </div>
+          <span class="w-3 h-3 rounded-full bg-primary ring-4 ring-primary/20"></span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-surface-container-low space-y-2 text-xs border border-surface-container/60">
+          <div class="flex justify-between items-center">
+            <span class="text-on-surface-variant">Certificat eIDAS :</span>
+            <span class="font-mono font-medium text-on-surface">Actif (Exp. Nov 2026)</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-on-surface-variant">Protocole d'échange :</span>
+            <span class="font-mono font-medium text-on-surface">REST API v3 / XML-EDI OHADA</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-on-surface-variant">Centre des Impôts :</span>
+            <span class="font-medium text-on-surface">DGE Abidjan (Grands Comptes)</span>
+          </div>
+        </div>
+
+        <!-- Téléchargement Quitus Fiscal -->
+        <button
+          (click)="downloadQuitus()"
+          class="w-full flex items-center justify-between p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group cursor-pointer border border-surface-container/60"
+          type="button"
+        >
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary text-[22px]">description</span>
+            <div class="text-left">
+              <div class="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors">Quitus Fiscal de Régularité</div>
+              <div class="text-[11px] font-mono text-on-surface-variant">Délivré DGI CI-2025-Q9842</div>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px]">download</span>
+        </button>
+
+        <!-- Bouton d'action directe -->
+        <button
+          class="w-full py-2.5 rounded-xl bg-primary text-on-primary text-body-sm font-bold flex items-center justify-center gap-2 shadow hover:bg-on-primary-fixed-variant transition-colors cursor-pointer disabled:opacity-75"
+          [disabled]="isTransmitting()"
+          (click)="teletransmitDgi()"
+          type="button"
+        >
+          <span class="material-symbols-outlined text-[18px]">lock_clock</span>
+          <span>Sceller & Télétransmettre Immédiatement</span>
+        </button>
+      </div>
+
+      <!-- Carte : Calendrier Fiscal & Compte à Rebours Réglementaire -->
+      <div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-surface-container/60 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[22px]">event_available</span>
+            <h3 class="text-body-md font-bold text-on-surface">Échéances Légales UEMOA</h3>
+          </div>
+          <span class="text-badge bg-surface-container px-2 py-0.5 rounded text-on-surface-variant font-mono font-semibold">Exercice 2024</span>
+        </div>
+
+        <!-- Compte à rebours J-7 -->
+        <div class="p-4 rounded-xl bg-secondary-container text-on-secondary-fixed flex items-center justify-between">
+          <div>
+            <div class="text-badge uppercase font-bold text-on-secondary-container">Prochaine Échéance</div>
+            <div class="text-headline-sm font-bold mt-0.5 text-on-surface">15 Mars 2025</div>
+            <div class="text-xs text-on-secondary-container">Dépôt provisoire & TVA mensuelle</div>
+          </div>
+          <div class="text-right">
+            <div class="font-mono text-display font-bold leading-none text-primary">J-7</div>
+            <div class="text-[10px] uppercase font-bold tracking-wider text-on-secondary-container">Restants</div>
+          </div>
+        </div>
+
+        <!-- Échéance définitive -->
+        <div class="p-3 rounded-xl bg-surface-container-low flex items-start gap-3 border border-surface-container/60">
+          <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">notification_important</span>
+          <div class="text-xs space-y-0.5">
+            <div class="font-semibold text-on-surface">30 Avril 2025 : Clôture Définitive SYSCOHADA</div>
+            <p class="text-on-surface-variant leading-relaxed">Date butoir de dépôt des liasses auditées auprès du Greffe du Tribunal et de la Direction Générale des Impôts.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte : Moteur d'Audit Fiscal Préventif -->
+      <div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-surface-container/60 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[22px]">policy</span>
+            <h3 class="text-body-md font-bold text-on-surface">Contrôle Anti-Redressement</h3>
+          </div>
+          <span class="text-badge text-primary font-bold bg-primary-container/10 px-2 py-0.5 rounded">4/4 CONFORMES</span>
+        </div>
+
+        <div class="space-y-2">
+          <!-- Point 1 -->
+          <div class="p-2.5 rounded-lg bg-surface-container-low flex items-start justify-between gap-3 border border-surface-container/40">
+            <div class="space-y-0.5">
+              <div class="text-xs font-semibold text-on-surface">Recoupement CA TVA vs Classe 70</div>
+              <div class="text-[11px] text-on-surface-variant">Conformité parfaite des bases taxables (Écart : 0.00%)</div>
+            </div>
+            <span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+          </div>
+
+          <!-- Point 2 -->
+          <div class="p-2.5 rounded-lg bg-surface-container-low flex items-start justify-between gap-3 border border-surface-container/40">
+            <div class="space-y-0.5">
+              <div class="text-xs font-semibold text-on-surface">Plafond des Dons & Libéralités (0.5% CA)</div>
+              <div class="text-[11px] text-on-surface-variant">Ratio actuel : 0.18% du CA (Sous le seuil légal CGI)</div>
+            </div>
+            <span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+          </div>
+
+          <!-- Point 3 -->
+          <div class="p-2.5 rounded-lg bg-surface-container-low flex items-start justify-between gap-3 border border-surface-container/40">
+            <div class="space-y-0.5">
+              <div class="text-xs font-semibold text-on-surface">Amortissements Véhicules Légers (VP)</div>
+              <div class="text-[11px] text-on-surface-variant">2 véhicules réintégrés au-delà du seuil de 20M FCFA</div>
+            </div>
+            <span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+          </div>
+
+          <!-- Point 4 -->
+          <div class="p-2.5 rounded-lg bg-surface-container-low flex items-start justify-between gap-3 border border-surface-container/40">
+            <div class="space-y-0.5">
+              <div class="text-xs font-semibold text-on-surface">Facturation Électronique Normalisée (FNE)</div>
+              <div class="text-[11px] text-on-surface-variant">100% des factures scellées avec sticker fiscal DGI</div>
+            </div>
+            <span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte : Visa Électronique du CAC (Mazars) -->
+      <div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-surface-container/60 space-y-2.5">
+        <span class="text-badge text-on-surface-variant uppercase font-semibold">Attestation & Certification Légale</span>
+        <div class="flex items-center gap-3 pt-1">
+          <div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center shrink-0 text-primary">
+            <span class="material-symbols-outlined text-[28px]">verified</span>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-on-surface">Cabinet Mazars Côte d'Ivoire</div>
+            <div class="text-[11px] text-on-surface-variant">Commissariat aux Comptes & Audit Légal</div>
+            <div class="font-mono text-[10px] text-primary font-medium mt-0.5">Inscription ONECCA CI N° EC-2019-44</div>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-surface-container flex items-center justify-between text-xs">
+          <span class="text-on-surface-variant">Signature numérique :</span>
+          <span class="font-mono text-primary font-semibold">Validée (Certigna RGS***)</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>

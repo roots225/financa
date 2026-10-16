@@ -1,0 +1,616 @@
+<div class="flex w-full flex-col gap-5">
+  <!-- Entête de la page & Actions Métier -->
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center gap-1.5 text-label text-secondary">
+      <span class="hover:text-primary transition-colors cursor-pointer">Comptabilité Générale</span>
+      <lucide-icon name="chevron-right" size="14" />
+      <span class="font-semibold text-on-surface">Journaux & Rapprochement</span>
+      <lucide-icon name="chevron-right" size="14" />
+      <span class="font-bold text-primary">{{ fin.entity.name }} ({{ fin.entity.framework }})</span>
+    </div>
+
+    <div class="flex flex-col justify-between gap-3 lg:flex-row lg:items-center mt-1">
+      <div class="flex flex-col">
+        <div class="flex flex-wrap items-center gap-2">
+          <h1 class="text-headline-lg font-bold tracking-tight">Tenue Comptable & Rapprochement Bancaire</h1>
+          <span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-badge font-bold uppercase text-primary tracking-wider">
+            <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+            {{ fin.entity.framework }}
+          </span>
+          <span class="rounded-full bg-surface-container px-2 py-0.5 text-badge font-semibold uppercase text-secondary">
+            Exercice Ouvert ({{ fin.entity.openPeriodLabel }})
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-success-fixed px-2 py-0.5 text-badge font-bold uppercase text-on-success-fixed shadow-sm">
+            <lucide-icon name="badge-check" size="14" />
+            98.4% Accordé
+          </span>
+        </div>
+        <p class="mt-1 text-body-sm text-secondary">
+          Contrôle continu des flux financiers, écritures au grand livre et certification fiduciaire conforme OHADA.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <input #bankFileInput type="file" accept=".ofx,.mt940,.csv,.txt" class="hidden" (change)="onBankFileSelected($event)" />
+        <button
+          type="button"
+          class="flex items-center gap-1.5 rounded-lg bg-surface-container-lowest px-3 py-2 text-body-sm font-semibold shadow-sm transition-colors hover:bg-surface-container text-on-surface"
+          (click)="openBankFilePicker()"
+        >
+          <lucide-icon name="upload" size="16" class="text-primary" />
+          <span>Importer Relevé (OFX / MT940)</span>
+        </button>
+
+        <button
+          type="button"
+          class="flex items-center gap-1.5 rounded-lg bg-surface-container-high px-3 py-2 text-body-sm font-semibold shadow-sm transition-colors hover:bg-surface-container-highest text-on-surface"
+          (click)="autoMatchAll()"
+        >
+          <lucide-icon name="wand-2" size="16" class="text-primary" />
+          <span>Lettrage Auto IA</span>
+        </button>
+
+        <button
+          type="button"
+          class="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-body-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-container"
+          (click)="openEntryModal()"
+        >
+          <lucide-icon name="plus" size="16" />
+          <span>Nouvelle Écriture</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barre d'onglets rapides par Journal SYSCOHADA -->
+    <div class="flex items-center justify-between gap-3 pt-2 overflow-x-auto">
+      <div class="flex items-center gap-1 rounded-xl bg-surface-container-low p-1">
+        <button
+          type="button"
+          class="rounded-lg px-3 py-1.5 text-body-sm transition-all"
+          [class]="selectedJournal() === 'ALL' ? 'bg-surface-container-lowest text-primary font-bold shadow-sm' : 'text-secondary font-medium hover:text-on-surface'"
+          (click)="selectedJournal.set('ALL')"
+        >
+          Tous les Journaux <span class="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-label font-bold text-primary">{{ fin.journal().length }}</span>
+        </button>
+        <button
+          type="button"
+          class="rounded-lg px-3 py-1.5 text-body-sm transition-all"
+          [class]="selectedJournal() === 'BQ' ? 'bg-surface-container-lowest text-primary font-bold shadow-sm' : 'text-secondary font-medium hover:text-on-surface'"
+          (click)="selectedJournal.set('BQ')"
+        >
+          Banque (BQ) <span class="tabular ml-1 text-label text-secondary">{{ fin.bookkeeping.entriesByJournal.BQ }}</span>
+        </button>
+        <button
+          type="button"
+          class="rounded-lg px-3 py-1.5 text-body-sm transition-all"
+          [class]="selectedJournal() === 'VT' ? 'bg-surface-container-lowest text-primary font-bold shadow-sm' : 'text-secondary font-medium hover:text-on-surface'"
+          (click)="selectedJournal.set('VT')"
+        >
+          Ventes (VT) <span class="tabular ml-1 text-label text-secondary">{{ fin.bookkeeping.entriesByJournal.VT }}</span>
+        </button>
+        <button
+          type="button"
+          class="rounded-lg px-3 py-1.5 text-body-sm transition-all"
+          [class]="selectedJournal() === 'AC' ? 'bg-surface-container-lowest text-primary font-bold shadow-sm' : 'text-secondary font-medium hover:text-on-surface'"
+          (click)="selectedJournal.set('AC')"
+        >
+          Achats (AC) <span class="tabular ml-1 text-label text-secondary">{{ fin.bookkeeping.entriesByJournal.AC }}</span>
+        </button>
+        <button
+          type="button"
+          class="rounded-lg px-3 py-1.5 text-body-sm transition-all"
+          [class]="selectedJournal() === 'CA' ? 'bg-surface-container-lowest text-primary font-bold shadow-sm' : 'text-secondary font-medium hover:text-on-surface'"
+          (click)="selectedJournal.set('CA')"
+        >
+          Caisse (CA) <span class="tabular ml-1 text-label text-secondary">{{ fin.bookkeeping.entriesByJournal.CA }}</span>
+        </button>
+        <button
+          type="button"
+          class="rounded-lg px-3 py-1.5 text-body-sm transition-all"
+          [class]="selectedJournal() === 'OD' ? 'bg-surface-container-lowest text-primary font-bold shadow-sm' : 'text-secondary font-medium hover:text-on-surface'"
+          (click)="selectedJournal.set('OD')"
+        >
+          Opér. Diverses (OD) <span class="tabular ml-1 text-label text-secondary">{{ fin.bookkeeping.entriesByJournal.OD }}</span>
+        </button>
+      </div>
+
+      <div class="hidden sm:flex items-center gap-1.5 text-label text-secondary">
+        <lucide-icon name="refresh-cw" size="14" class="text-primary" />
+        <span>Dernière synchro bancaire : <strong class="text-on-surface">{{ fin.bookkeeping.lastBankSync }}</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bandeau KPI & Notation Risque Crédit -->
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- KPI 1 : Solde Bancaire Réconcilié -->
+    <div class="card flex flex-col justify-between p-5 relative overflow-hidden group hover:shadow-md transition-shadow">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-badge font-bold uppercase tracking-wider text-secondary">Solde Bancaire Rapproché</span>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="tabular text-headline-md font-bold tracking-tight text-on-surface">{{ fin.reconciledBankTotal | fcfa }}</span>
+            <span class="tabular text-label font-semibold text-secondary">FCFA</span>
+          </div>
+        </div>
+        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <lucide-icon name="landmark" size="20" />
+        </div>
+      </div>
+      <div class="mt-4 pt-1 flex items-center justify-between text-secondary">
+        <span class="text-body-sm flex items-center gap-1 text-success font-semibold">
+          <lucide-icon name="check-circle-2" size="14" />
+          Écart non rapproché : 0 FCFA
+        </span>
+        <span class="tabular rounded bg-surface-container px-1.5 py-0.5 text-label font-bold text-on-surface">100% Net</span>
+      </div>
+      <div class="w-full bg-surface-container h-1 rounded-full mt-2 overflow-hidden">
+        <div class="bg-primary h-full rounded-full" style="width: 100%"></div>
+      </div>
+    </div>
+
+    <!-- KPI 2 : Écritures Traitées -->
+    <div class="card flex flex-col justify-between p-5 relative overflow-hidden group hover:shadow-md transition-shadow">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-badge font-bold uppercase tracking-wider text-secondary">Écritures du Mois ({{ fin.entity.openPeriodShort }})</span>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="tabular text-headline-md font-bold tracking-tight text-on-surface">{{ fin.monthEntries() | fcfa }}</span>
+            <span class="text-badge font-semibold uppercase text-primary font-mono">{{ fin.entity.framework }}</span>
+          </div>
+        </div>
+        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-container text-secondary">
+          <lucide-icon name="receipt" size="20" />
+        </div>
+      </div>
+      <div class="mt-4 pt-1 flex items-center justify-between">
+        <span class="text-body-sm text-secondary">Pièces justificatives rattachées</span>
+        <span class="tabular text-label font-bold text-primary">{{ fin.bookkeeping.attachmentRate | num: 1 }}%</span>
+      </div>
+      <div class="w-full bg-surface-container h-1 rounded-full mt-2 overflow-hidden">
+        <div class="bg-primary h-full rounded-full" [style.width.%]="fin.bookkeeping.attachmentRate"></div>
+      </div>
+    </div>
+
+    <!-- KPI 3 : Lettrage Automatique IA -->
+    <div class="card flex flex-col justify-between p-5 relative overflow-hidden group hover:shadow-md transition-shadow">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-badge font-bold uppercase tracking-wider text-secondary">Taux Lettrage Auto (IA)</span>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="tabular text-headline-md font-bold tracking-tight text-primary">{{ fin.autoMatchRate() | num: 1 }}%</span>
+            <span class="text-label text-secondary font-medium">Reconnaissance</span>
+          </div>
+        </div>
+        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-success-fixed text-on-success-fixed">
+          <lucide-icon name="brain" size="20" />
+        </div>
+      </div>
+      <div class="mt-4 pt-1 flex items-center justify-between">
+        <span class="text-body-sm text-secondary">Règles prédictives SYSCOHADA</span>
+        <span class="tabular text-label font-bold text-on-surface font-mono">{{ fin.bookkeeping.autoMatched }} / {{ fin.monthEntries() }}</span>
+      </div>
+      <div class="w-full bg-surface-container h-1 rounded-full mt-2 overflow-hidden">
+        <div class="bg-primary h-full rounded-full" [style.width.%]="fin.autoMatchRate()"></div>
+      </div>
+    </div>
+
+    <!-- KPI 4 : Impact Score Crédit -->
+    <div class="card flex flex-col justify-between p-5 relative overflow-hidden group hover:shadow-md transition-shadow bg-gradient-to-br from-surface-container-lowest to-surface-container-low">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-badge font-bold uppercase tracking-wider text-primary flex items-center gap-1">
+            <lucide-icon name="trending-up" size="14" class="text-primary" />
+            Impact Score Crédit
+          </span>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="tabular text-headline-md font-extrabold tracking-tight text-primary">+{{ fin.bookkeeping.scoreImpact }} pts</span>
+            <span class="text-label text-secondary">sur Note {{ fin.grade }}</span>
+          </div>
+        </div>
+        <div class="bg-brand-gradient flex h-9 w-9 items-center justify-center rounded-lg text-white shadow-sm">
+          <lucide-icon name="gauge" size="20" />
+        </div>
+      </div>
+      <div class="mt-4 pt-1 flex items-center justify-between">
+        <span class="text-body-sm text-secondary truncate">Transparence & Écritures &lt; 24h</span>
+        <span class="rounded bg-success-fixed px-1.5 py-0.5 text-badge font-bold uppercase text-on-success-fixed">Audit Prêt</span>
+      </div>
+      <div class="w-full bg-surface-container h-1 rounded-full mt-2 overflow-hidden">
+        <div class="bg-brand-gradient h-full rounded-full" style="width: 88%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu Principal : Grille Asymétrique 60% Journal / 40% Rapprochement -->
+  <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+    <!-- Colonne GAUCHE (7 cols) : Journal Général des Écritures -->
+    <section class="lg:col-span-7 flex flex-col gap-3">
+      <div class="card flex flex-col gap-3 p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-headline-sm font-bold flex items-center gap-1.5 text-on-surface">
+              <lucide-icon name="book-open" size="20" class="text-primary" />
+              Journal Général des Écritures
+            </h2>
+            <span class="text-body-sm text-secondary">Flux comptabilisés sous le plan de comptes SYSCOHADA Révisé</span>
+          </div>
+          <button
+            type="button"
+            class="flex items-center gap-1 rounded-lg bg-surface-container px-3 py-1.5 text-body-sm font-semibold text-on-surface hover:bg-surface-container-high transition-colors"
+            (click)="exportJournalFEC()"
+          >
+            <lucide-icon name="download" size="14" />
+            <span>Grand Livre (Excel/FEC)</span>
+          </button>
+        </div>
+
+        <!-- Filtres Avancés -->
+        <div class="grid grid-cols-1 gap-2 bg-surface-container-low p-2.5 rounded-xl sm:grid-cols-3">
+          <div class="relative flex items-center">
+            <lucide-icon name="search" size="14" class="pointer-events-none absolute left-2.5 text-secondary" />
+            <input
+              type="text"
+              class="w-full h-8 pl-8 pr-2 bg-surface-container-lowest rounded-lg text-body-sm text-on-surface placeholder:text-secondary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+              placeholder="Filtrer compte (411, 521, 601)..."
+              [value]="searchQuery()"
+              (input)="searchQuery.set($any($event.target).value)"
+            />
+          </div>
+          <div class="relative flex items-center">
+            <select
+              class="w-full h-8 px-2 bg-surface-container-lowest rounded-lg text-body-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+              [value]="selectedPeriod()"
+              (change)="selectedPeriod.set($any($event.target).value)"
+            >
+              <option value="M10">Période : {{ fin.entity.openPeriodLabel }} {{ fin.entity.openYear }}</option>
+              <option value="M09">Septembre {{ fin.entity.openYear }}</option>
+              <option value="Y2025">Exercice Clôturé {{ fin.entity.closedYear }}</option>
+            </select>
+          </div>
+          <div class="relative flex items-center">
+            <select
+              class="w-full h-8 px-2 bg-surface-container-lowest rounded-lg text-body-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+              [value]="selectedStatus()"
+              (change)="selectedStatus.set($any($event.target).value)"
+            >
+              <option value="ALL">Statut Rapprochement : Tous</option>
+              <option value="MATCHED">Rapproché / Lettré Uniquement</option>
+              <option value="PENDING">À Échoir / En Cours</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tableau Haute Densité Institutionnel -->
+        <div class="overflow-x-auto rounded-xl">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="tabular bg-surface-container-low text-label font-bold uppercase tracking-wider text-secondary">
+                <th class="py-2.5 px-3">Date</th>
+                <th class="py-2.5 px-2">N° Écr.</th>
+                <th class="py-2.5 px-2">Jnl</th>
+                <th class="py-2.5 px-3">Compte SYSCOHADA</th>
+                <th class="py-2.5 px-3">Tiers / Libellé de la pièce</th>
+                <th class="py-2.5 px-3 text-right">Débit (FCFA)</th>
+                <th class="py-2.5 px-3 text-right">Crédit (FCFA)</th>
+                <th class="py-2.5 px-2 text-center">Rappr.</th>
+                <th class="py-2.5 px-2 text-center">PJ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container text-body-sm">
+              @for (row of filteredJournal(); track $index) {
+                <tr class="hover:bg-surface-container-low/70 transition-colors" [class.bg-surface-container-low-30]="row.counterpart">
+                  <td class="tabular py-2 px-3 text-secondary text-xs">{{ row.date | shortDate }}</td>
+                  <td class="tabular py-2 px-2 font-semibold text-on-surface text-xs">{{ row.entry }}</td>
+                  <td class="py-2 px-2">
+                    <span class="rounded bg-surface-container px-1.5 py-0.5 text-xs font-bold text-secondary font-mono">{{ row.journal }}</span>
+                  </td>
+                  <td class="py-2 px-3">
+                    <span class="tabular font-bold" [class]="row.account.startsWith('5') ? 'text-primary' : 'text-on-surface'">{{ row.account }}</span>
+                    <span class="block text-secondary text-xs truncate max-w-[130px]">{{ row.accountLabel }}</span>
+                  </td>
+                  <td class="py-2 px-3">
+                    <p class="font-medium text-on-surface truncate max-w-[160px]">{{ row.label }}</p>
+                    <span class="tabular text-xs text-secondary">{{ row.reference }}</span>
+                  </td>
+                  <td class="tabular py-2 px-3 text-right font-bold" [class.text-on-surface]="row.debit > 0" [class.text-secondary]="row.debit === 0">
+                    {{ row.debit > 0 ? (row.debit | fcfa) : '-' }}
+                  </td>
+                  <td class="tabular py-2 px-3 text-right font-bold" [class.text-on-surface]="row.credit > 0" [class.text-secondary]="row.credit === 0">
+                    {{ row.credit > 0 ? (row.credit | fcfa) : '-' }}
+                  </td>
+                  <td class="py-2 px-2 text-center">
+                    <span
+                      class="inline-flex items-center px-1.5 py-0.5 rounded-full text-badge font-bold"
+                      [class]="row.status === 'Rapproché' || row.status === 'Lettré' ? 'bg-success-fixed text-on-success-fixed' : 'bg-surface-container text-secondary'"
+                    >{{ row.status }}</span>
+                  </td>
+                  <td class="py-2 px-2 text-center">
+                    <lucide-icon [name]="row.attachment.icon" size="16" class="text-primary cursor-pointer hover:opacity-75" [title]="row.attachment.title" />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pied de Tableau : Équilibre Comptable Débit / Crédit -->
+        <div class="rounded-xl bg-surface-container-low p-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span class="h-2.5 w-2.5 rounded-full bg-primary"></span>
+            <span class="tabular text-label font-bold text-on-surface">Contrôle Arithmétique Balance :</span>
+            <span class="text-body-sm text-primary font-bold">Équilibre Débit = Crédit conforme OHADA</span>
+          </div>
+          <div class="flex items-center gap-4 text-right">
+            <div>
+              <span class="text-badge uppercase text-secondary block">Total Débit Extrait</span>
+              <span class="tabular text-body-md font-bold text-on-surface">{{ fin.journalTotals().debit | fcfa }} FCFA</span>
+            </div>
+            <div>
+              <span class="text-badge uppercase text-secondary block">Total Crédit Extrait</span>
+              <span class="tabular text-body-md font-bold text-on-surface">{{ fin.journalTotals().credit | fcfa }} FCFA</span>
+            </div>
+            <div class="pl-2">
+              <span class="rounded bg-success-fixed px-2 py-1 text-badge font-bold uppercase text-on-success-fixed">Écart 0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Colonne DROITE (5 cols) : Rapprochement Bancaire & Flux Détectés IA -->
+    <section class="lg:col-span-5 flex flex-col gap-3">
+      <!-- Sélecteur de Compte Bancaire Institutionnel -->
+      <div class="card flex flex-col gap-3 p-5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-container text-primary">
+              <lucide-icon name="wallet" size="18" />
+            </div>
+            <div>
+              <h3 class="text-headline-sm font-bold text-on-surface">État de Rapprochement</h3>
+              <span class="text-body-sm text-secondary">Réconciliation bancaire bilatérale</span>
+            </div>
+          </div>
+          <span class="rounded-full bg-success-fixed px-2 py-0.5 text-label font-bold text-on-success-fixed">Audité</span>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-badge font-bold uppercase text-secondary" for="select-bank-account">Sélection du Compte Trésorerie :</label>
+          <select
+            id="select-bank-account"
+            class="h-10 w-full rounded-lg bg-surface-container-low px-3 text-body-sm font-semibold text-on-surface focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+            [value]="selectedBankAccount()"
+            (change)="selectedBankAccount.set($any($event.target).value)"
+          >
+            @for (acc of fin.bankAccounts; track acc.account) {
+              <option [value]="acc.account">{{ acc.bank }} - {{ acc.label }} ({{ acc.account }})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Fiche de Réconciliation Bilatérale SYSCOHADA -->
+        <div class="rounded-xl bg-surface-container-low p-4 flex flex-col gap-2">
+          <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+            <span class="text-body-sm text-secondary">Solde relevé bancaire (extrait au {{ bankReconciliation().statementDate | shortDate }})</span>
+            <span class="tabular text-body-md font-bold text-on-surface">{{ bankReconciliation().statementBalance | fcfa }} FCFA</span>
+          </div>
+          <div class="flex items-center justify-between text-secondary">
+            <span class="text-body-sm flex items-center gap-1">
+              <lucide-icon name="minus-circle" size="14" class="text-error" />
+              Moins : Chèques émis non encore débités
+            </span>
+            <span class="tabular text-body-sm font-medium text-error">- {{ bankReconciliation().outstandingCheques | fcfa }} FCFA</span>
+          </div>
+          <div class="flex items-center justify-between text-secondary">
+            <span class="text-body-sm flex items-center gap-1">
+              <lucide-icon name="plus-circle" size="14" class="text-primary" />
+              Plus : Remises de chèques & virements en cours
+            </span>
+            <span class="tabular text-body-sm font-medium text-primary">+ {{ bankReconciliation().depositsInTransit | fcfa }} FCFA</span>
+          </div>
+
+          <div class="pt-2 border-t border-surface-container flex items-center justify-between bg-surface-container-lowest p-3 rounded-lg shadow-sm">
+            <div>
+              <span class="text-badge font-bold uppercase text-secondary block">Solde Comptable Théorique</span>
+              <span class="tabular text-headline-sm font-bold text-primary">{{ bankReconciliation().bookBalance | fcfa }} FCFA</span>
+            </div>
+            <div class="text-right">
+              <span class="tabular font-bold text-primary bg-primary/10 px-2 py-1 rounded text-label">Écart Réconciliation : 0 FCFA</span>
+              <span class="block text-xs text-secondary mt-0.5">Validé par Commissaire aux Comptes</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions Rapides IA -->
+        <div class="flex items-center justify-between text-xs text-secondary">
+          <span class="flex items-center gap-1">
+            <lucide-icon name="zap" size="14" class="text-primary" />
+            {{ fin.pendingFlows().length }} flux en attente de validation assistée
+          </span>
+          <button type="button" class="text-primary hover:underline font-semibold" (click)="autoMatchAll()">
+            Tout approuver (IA)
+          </button>
+        </div>
+      </div>
+
+      <!-- Flux Bancaires en attente d'imputation -->
+      <div class="card flex flex-col gap-3 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-1.5">
+              <lucide-icon name="refresh-ccw" size="18" class="text-primary" />
+              Flux Détectés & Match IA
+            </h3>
+            <span class="text-body-sm text-secondary">Reconnaissance de libellé bancaire → Écriture OHADA</span>
+          </div>
+          <span class="rounded-full bg-secondary-container px-2 py-0.5 text-label font-bold text-on-secondary-container">
+            {{ fin.pendingFlows().length }} Éléments
+          </span>
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+          @for (flow of fin.pendingFlows(); track flow.id) {
+            <div class="rounded-xl bg-surface-container-low hover:bg-surface-container transition-all p-3 flex flex-col gap-2">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="flex h-7 w-7 items-center justify-center rounded-lg"
+                    [class]="flow.amount > 0 ? 'bg-success-fixed text-on-success-fixed' : 'bg-surface-container text-secondary'"
+                  >
+                    <lucide-icon [name]="flow.amount > 0 ? 'arrow-down' : 'arrow-up'" size="14" />
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="tabular font-bold" [class]="flow.amount > 0 ? 'text-primary' : 'text-on-surface'">
+                        {{ flow.amount | fcfa : true }} FCFA
+                      </span>
+                      <span class="rounded bg-success-fixed px-1.5 py-0.2 text-badge font-bold text-on-success-fixed">
+                        {{ flow.tag }}
+                      </span>
+                    </div>
+                    <p class="text-body-sm font-semibold text-on-surface">{{ flow.label }}</p>
+                  </div>
+                </div>
+                <span class="tabular text-xs text-secondary">{{ flow.date | shortDate }}</span>
+              </div>
+
+              <div class="rounded-lg bg-surface-container-lowest p-2 text-xs flex flex-col gap-1">
+                <div class="flex items-center justify-between text-secondary">
+                  <span>Réf. bancaire : {{ flow.bankRef }}</span>
+                  <span class="font-semibold text-on-surface">{{ flow.document }}</span>
+                </div>
+                <p class="text-secondary">
+                  Proposition IA : <strong class="text-on-surface">Débit {{ flow.debitAccount.code }} / Crédit {{ flow.creditAccount.code }}</strong>
+                </p>
+              </div>
+
+              <div class="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  class="rounded bg-primary px-3 py-1 text-xs font-bold text-white shadow-sm transition-all hover:bg-primary-container flex items-center gap-1"
+                  (click)="validateFlow(flow.id)"
+                >
+                  <lucide-icon name="check" size="14" />
+                  {{ flow.actionLabel }}
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <div class="p-6 text-center text-body-sm text-secondary bg-surface-container-low rounded-xl">
+              <lucide-icon name="check-circle-2" size="24" class="text-success mx-auto mb-1 block" />
+              Tous les flux bancaires ont été lettrés et imputés au Grand Livre.
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Contrôles de Clôture & Certificat de Conformité Bancaire -->
+  <section class="card flex flex-col gap-3 p-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-surface-container">
+      <div class="flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <lucide-icon name="shield-check" size="18" />
+        </div>
+        <div>
+          <h3 class="text-headline-sm font-bold text-on-surface">Contrôles de Clôture Mensuelle & Audit Bancaire Continu</h3>
+          <span class="text-body-sm text-secondary">Checklist réglementaire avant transmission du dossier aux institutions prêteuses (BOAD, SG, Ecobank)</span>
+        </div>
+      </div>
+      <span class="rounded-full bg-success-fixed px-3 py-1 text-label font-bold text-on-success-fixed flex items-center gap-1">
+        <lucide-icon name="shield" size="14" />
+        4/4 Contrôles Validés
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      @for (ctrl of fin.closingControls; track ctrl.title) {
+        <div class="rounded-xl bg-surface-container-low p-4 flex flex-col justify-between gap-2">
+          <div class="flex items-start justify-between">
+            <span class="text-badge font-bold uppercase text-secondary">{{ ctrl.title }}</span>
+            <lucide-icon [name]="ctrl.icon" size="16" class="text-primary" />
+          </div>
+          <p class="text-body-sm font-semibold text-on-surface">{{ ctrl.label }}</p>
+          <span class="text-xs text-secondary">{{ ctrl.detail }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-secondary text-xs border-t border-surface-container">
+      <div class="flex items-center gap-2">
+        <lucide-icon name="fingerprint" size="16" class="text-primary" />
+        <span>Empreinte cryptographique FEC : <code class="font-mono text-on-surface font-semibold">SHA256:7f9a2e...c81b90</code></span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span>Expert comptable référent : <strong>K. Kouamé (Agrée ONECCA CI)</strong></span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Modal Écriture Manuelle Rapide -->
+<dialog #entryDialog class="m-auto w-full max-w-lg rounded-xl bg-surface-container-lowest p-5 text-on-surface shadow-xl" aria-labelledby="manual-entry-title">
+  <div class="flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded bg-primary/10 text-primary font-bold">
+          <lucide-icon name="list-plus" size="18" />
+        </div>
+        <h4 id="manual-entry-title" class="text-headline-sm font-bold text-on-surface">Saisie Écriture Comptable</h4>
+      </div>
+      <button type="button" class="rounded-lg p-1 text-secondary hover:text-on-surface" aria-label="Fermer" (click)="closeEntryModal()">
+        <lucide-icon name="x" size="18" />
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div class="flex flex-col gap-1">
+        <label class="text-badge font-bold uppercase text-secondary" for="entry-jnl">Journal</label>
+        <select id="entry-jnl" class="h-9 rounded-lg bg-surface-container-low px-2 text-body-sm text-on-surface" [(ngModel)]="newEntryJournal">
+          <option value="BQ">BQ - Banque Ecobank</option>
+          <option value="VT">VT - Ventes</option>
+          <option value="AC">AC - Achats</option>
+          <option value="CA">CA - Caisse</option>
+          <option value="OD">OD - Opérations Diverses</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-badge font-bold uppercase text-secondary" for="entry-date">Date Valeur</label>
+        <input id="entry-date" type="date" class="h-9 rounded-lg bg-surface-container-low px-2 text-body-sm text-on-surface" [(ngModel)]="newEntryDate" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div class="flex flex-col gap-1">
+        <label class="text-badge font-bold uppercase text-secondary" for="entry-debit">Compte Débit (ex: 601100)</label>
+        <input id="entry-debit" type="text" class="h-9 rounded-lg bg-surface-container-low px-3 text-body-sm text-on-surface" placeholder="Compte Débit" [(ngModel)]="newEntryDebitAccount" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-badge font-bold uppercase text-secondary" for="entry-credit">Compte Crédit (ex: 521100)</label>
+        <input id="entry-credit" type="text" class="h-9 rounded-lg bg-surface-container-low px-3 text-body-sm text-on-surface" placeholder="Compte Crédit" [(ngModel)]="newEntryCreditAccount" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div class="flex flex-col gap-1">
+        <label class="text-badge font-bold uppercase text-secondary" for="entry-amount">Montant Net (FCFA)</label>
+        <input id="entry-amount" type="number" min="0" class="h-9 rounded-lg bg-surface-container-low px-3 text-body-sm text-on-surface" placeholder="Montant" [(ngModel)]="newEntryAmount" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-badge font-bold uppercase text-secondary" for="entry-label">Libellé de la pièce</label>
+        <input id="entry-label" type="text" class="h-9 rounded-lg bg-surface-container-low px-3 text-body-sm text-on-surface" placeholder="Ex: Réglt Fournisseur..." [(ngModel)]="newEntryLabel" />
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-surface-container">
+      <button type="button" class="h-9 rounded-lg bg-surface-container px-3 text-body-sm font-semibold text-secondary hover:bg-surface-container-high" (click)="closeEntryModal()">
+        Annuler
+      </button>
+      <button type="button" class="h-9 rounded-lg bg-primary px-3 text-body-sm font-semibold text-white hover:bg-primary-container" (click)="submitNewEntry()">
+        Valider & Équilibrer
+      </button>
+    </div>
+  </div>
+</dialog>

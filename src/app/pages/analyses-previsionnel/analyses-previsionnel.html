@@ -1,0 +1,577 @@
+<div class="flex w-full flex-col gap-6">
+  <!-- Entête de Section & Sélecteur de Scénarios -->
+  <header class="card flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-5 shadow-sm">
+    <div class="flex flex-col gap-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <h1 class="text-headline-lg text-on-surface font-bold tracking-tight">Analyses Prédictives & États Prévisionnels 2025</h1>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+          <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+          <span class="text-badge font-bold uppercase tracking-wider">Moteur Auto-learning Actif (Ridge Stacking ARIMA / LSTM / XGB)</span>
+        </div>
+      </div>
+      <p class="text-body-sm text-secondary max-w-3xl leading-relaxed">
+        Modélisation prévisionnelle multi-horizon calibrée sur 72 mois d'antériorités SYSCOHADA révisées (2018–2024). Validation walk-forward consolidée pour {{ fin.entity.name }}.
+      </p>
+    </div>
+
+    <!-- Actions & Choix Scénarios -->
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="inline-flex p-1 bg-surface-container rounded-lg" id="scenario-selector">
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded text-label font-medium transition-all cursor-pointer"
+          [class.bg-surface-container-lowest]="activeScenario() === 'pessimiste'"
+          [class.text-primary]="activeScenario() === 'pessimiste'"
+          [class.font-bold]="activeScenario() === 'pessimiste'"
+          [class.shadow-sm]="activeScenario() === 'pessimiste'"
+          [class.text-secondary]="activeScenario() !== 'pessimiste'"
+          (click)="setScenario('pessimiste')"
+        >
+          Pessimiste (-4%)
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded text-label font-medium transition-all cursor-pointer"
+          [class.bg-surface-container-lowest]="activeScenario() === 'base'"
+          [class.text-primary]="activeScenario() === 'base'"
+          [class.font-bold]="activeScenario() === 'base'"
+          [class.shadow-sm]="activeScenario() === 'base'"
+          [class.text-secondary]="activeScenario() !== 'base'"
+          (click)="setScenario('base')"
+        >
+          Base (+12,0%)
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded text-label font-medium transition-all cursor-pointer"
+          [class.bg-surface-container-lowest]="activeScenario() === 'optimiste'"
+          [class.text-primary]="activeScenario() === 'optimiste'"
+          [class.font-bold]="activeScenario() === 'optimiste'"
+          [class.shadow-sm]="activeScenario() === 'optimiste'"
+          [class.text-secondary]="activeScenario() !== 'optimiste'"
+          (click)="setScenario('optimiste')"
+        >
+          Optimiste (+22%)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors shadow-sm text-body-sm font-semibold cursor-pointer"
+          (click)="recalibrateModel()"
+          [disabled]="recalibrating()"
+        >
+          <lucide-icon name="sliders-horizontal" [size]="16" class="text-primary" [class.animate-spin]="recalibrating()" />
+          <span>{{ recalibrating() ? 'Optimisation Ridge...' : 'Recalibrer' }}</span>
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-white hover:bg-primary-container transition-colors shadow-sm text-body-sm font-semibold cursor-pointer"
+          (click)="exportForecast()"
+        >
+          <lucide-icon name="download" [size]="16" />
+          <span>Exporter Modèle (PDF/XLSX)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPIs Prédictifs & Métriques de Robustesse (4 Bento Cards) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <!-- KPI 1 : CA Prévisionnel -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-badge uppercase text-secondary tracking-wider font-bold">Chiffre d'Affaires Projeté 2025</span>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="tabular text-headline-lg font-bold text-on-surface">{{ simulatedCA() | fcfa }}</span>
+            <span class="text-label text-secondary font-semibold font-mono">FCFA</span>
+          </div>
+        </div>
+        <div class="px-2 py-1 rounded-full bg-primary/10 text-primary flex items-center gap-0.5">
+          <lucide-icon name="trending-up" [size]="14" />
+          <span class="text-badge font-bold">{{ growthSlider() > 0 ? '+' : '' }}{{ growthSlider() | num: 1 }}%</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-2 border-t border-surface-container flex items-center justify-between text-secondary text-body-sm">
+        <span>IC 95% : ±3,74M FCFA</span>
+        <span class="text-primary font-semibold font-mono">2024 Réel : 66,8M</span>
+      </div>
+    </div>
+
+    <!-- KPI 2 : Robustesse Modèle IA -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-badge uppercase text-secondary tracking-wider font-bold">Précision & Convergence Modèle</span>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="tabular text-headline-lg font-bold text-on-surface font-mono">0,921</span>
+            <span class="text-label text-primary font-semibold font-mono">R² Ensemble</span>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+          <lucide-icon name="badge-check" [size]="18" />
+        </div>
+      </div>
+      <div class="mt-4 pt-2 border-t border-surface-container flex items-center justify-between text-secondary text-body-sm">
+        <span>MAPE : <strong class="text-on-surface font-mono">3,8%</strong></span>
+        <span class="font-mono">Hit-rate : 74% (72M)</span>
+      </div>
+    </div>
+
+    <!-- KPI 3 : Résultat Net Prévisionnel -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-badge uppercase text-secondary tracking-wider font-bold">Résultat Net Projeté 2025</span>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="tabular text-headline-lg font-bold text-primary font-mono">+{{ simulatedRN() | fcfa }}</span>
+            <span class="text-label text-secondary font-semibold font-mono">FCFA</span>
+          </div>
+        </div>
+        <div class="px-2 py-1 rounded-full bg-surface-container-high text-on-secondary-container flex items-center gap-0.5">
+          <span class="text-badge font-bold">Marge {{ (simulatedRN() / simulatedCA()) * 100 | num: 1 }}%</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-2 border-t border-surface-container flex items-center justify-between text-secondary text-body-sm">
+        <span>Après impôt BIC 25%</span>
+        <span class="text-primary font-semibold font-mono">+3,12M vs N-1</span>
+      </div>
+    </div>
+
+    <!-- KPI 4 : Capacité d'Autofinancement (CAF) -->
+    <div class="card p-5 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-badge uppercase text-secondary tracking-wider font-bold">CAF Prévisionnelle (SYSCOHADA)</span>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="tabular text-headline-lg font-bold text-on-surface font-mono">{{ simulatedCAF() | fcfa }}</span>
+            <span class="text-label text-secondary font-semibold font-mono">FCFA</span>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+          <lucide-icon name="piggy-bank" [size]="18" />
+        </div>
+      </div>
+      <div class="mt-4 pt-2 border-t border-surface-container flex items-center justify-between text-secondary text-body-sm">
+        <span>Ratio CAF / Dettes : <strong class="text-on-surface font-mono">1,84x</strong></span>
+        <span class="text-badge uppercase text-primary font-bold">Capacité Robuste</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets de Navigation Principale -->
+  <div class="flex items-center gap-1.5 card p-1.5 shadow-sm overflow-x-auto">
+    <button
+      type="button"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold whitespace-nowrap transition-all cursor-pointer"
+      [class.bg-primary-container]="activeTab() === 'tab-ventes'"
+      [class.text-on-primary-container]="activeTab() === 'tab-ventes'"
+      [class.shadow-sm]="activeTab() === 'tab-ventes'"
+      [class.text-white]="activeTab() === 'tab-ventes'"
+      [class.text-secondary]="activeTab() !== 'tab-ventes'"
+      [class.hover:bg-surface-container]="activeTab() !== 'tab-ventes'"
+      (click)="activeTab.set('tab-ventes')"
+    >
+      <lucide-icon name="line-chart" [size]="16" />
+      <span>Prédiction des Ventes & CA</span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold whitespace-nowrap transition-all cursor-pointer"
+      [class.bg-primary-container]="activeTab() === 'tab-cr'"
+      [class.text-on-primary-container]="activeTab() === 'tab-cr'"
+      [class.shadow-sm]="activeTab() === 'tab-cr'"
+      [class.text-white]="activeTab() === 'tab-cr'"
+      [class.text-secondary]="activeTab() !== 'tab-cr'"
+      [class.hover:bg-surface-container]="activeTab() !== 'tab-cr'"
+      (click)="activeTab.set('tab-cr')"
+    >
+      <lucide-icon name="table" [size]="16" />
+      <span>Compte de Résultat Prévisionnel</span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold whitespace-nowrap transition-all cursor-pointer"
+      [class.bg-primary-container]="activeTab() === 'tab-bilan'"
+      [class.text-on-primary-container]="activeTab() === 'tab-bilan'"
+      [class.shadow-sm]="activeTab() === 'tab-bilan'"
+      [class.text-white]="activeTab() === 'tab-bilan'"
+      [class.text-secondary]="activeTab() !== 'tab-bilan'"
+      [class.hover:bg-surface-container]="activeTab() !== 'tab-bilan'"
+      (click)="activeTab.set('tab-bilan')"
+    >
+      <lucide-icon name="scale" [size]="16" />
+      <span>Bilan Prévisionnel 2025</span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold whitespace-nowrap transition-all cursor-pointer"
+      [class.bg-primary-container]="activeTab() === 'tab-tresorerie'"
+      [class.text-on-primary-container]="activeTab() === 'tab-tresorerie'"
+      [class.shadow-sm]="activeTab() === 'tab-tresorerie'"
+      [class.text-white]="activeTab() === 'tab-tresorerie'"
+      [class.text-secondary]="activeTab() !== 'tab-tresorerie'"
+      [class.hover:bg-surface-container]="activeTab() !== 'tab-tresorerie'"
+      (click)="activeTab.set('tab-tresorerie')"
+    >
+      <lucide-icon name="banknote" [size]="16" />
+      <span>Flux & Trésorerie Prévisionnelle</span>
+    </button>
+    <button
+      type="button"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold whitespace-nowrap transition-all cursor-pointer"
+      [class.bg-primary-container]="activeTab() === 'tab-stresstest'"
+      [class.text-on-primary-container]="activeTab() === 'tab-stresstest'"
+      [class.shadow-sm]="activeTab() === 'tab-stresstest'"
+      [class.text-white]="activeTab() === 'tab-stresstest'"
+      [class.text-secondary]="activeTab() !== 'tab-stresstest'"
+      [class.hover:bg-surface-container]="activeTab() !== 'tab-stresstest'"
+      (click)="activeTab.set('tab-stresstest')"
+    >
+      <lucide-icon name="zap" [size]="16" />
+      <span>Simulateur de Stress Test</span>
+    </button>
+  </div>
+
+  <!-- Contenu Principal en Bento Asymétrique (8 colonnes / 4 colonnes) -->
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+    <!-- Colonne Gauche : Graphique Prédictif + Tableau Mensuel (8 cols) -->
+    <div class="xl:col-span-8 flex flex-col gap-5">
+      <!-- Graphique d'Ensemble & Cône d'Incertitude -->
+      <div class="card p-5 shadow-sm flex flex-col gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-surface-container">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-headline-sm text-on-surface font-bold">Trajectoire des Ventes & Enveloppe Prédictive</span>
+              <span class="text-label px-2 py-0.5 rounded bg-surface-container text-secondary font-mono">SYSCOHADA 701-706</span>
+            </div>
+            <p class="text-body-sm text-secondary mt-0.5">Données historiques auditées (2022-2024) combinées au cône de projection stochastique 2025.</p>
+          </div>
+          <!-- Légende interactive -->
+          <div class="flex flex-wrap items-center gap-3 text-label font-mono">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-0.5 bg-secondary rounded-full"></span>
+              <span class="text-secondary">Réel 2024</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-1 bg-primary rounded-full"></span>
+              <span class="text-primary font-bold">Prévision 2025</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded bg-primary/20"></span>
+              <span class="text-secondary">IC 95%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Graphique Vectoriel Haute Précision SVG -->
+        <div class="w-full relative bg-surface-container-low/40 rounded-xl p-4 overflow-hidden">
+          <svg class="w-full h-auto" preserveAspectRatio="xMidYMid meet" viewBox="0 0 820 280">
+            <defs>
+              <linearGradient id="coneGrad" x1="0%" x2="100%" y1="0%" y2="0%">
+                <stop offset="0%" stop-color="#006948" stop-opacity="0.08"></stop>
+                <stop offset="100%" stop-color="#006948" stop-opacity="0.22"></stop>
+              </linearGradient>
+              <linearGradient id="lineGrad" x1="0%" x2="100%" y1="0%" y2="0%">
+                <stop offset="0%" stop-color="#006948"></stop>
+                <stop offset="100%" stop-color="#00855d"></stop>
+              </linearGradient>
+            </defs>
+            <!-- Grilles horizontales -->
+            <line stroke="#bccac0" stroke-dasharray="3,3" stroke-opacity="0.6" stroke-width="0.75" x1="50" x2="800" y1="30" y2="30"></line>
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="42" y="34">8M</text>
+            <line stroke="#bccac0" stroke-dasharray="3,3" stroke-opacity="0.6" stroke-width="0.75" x1="50" x2="800" y1="85" y2="85"></line>
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="42" y="89">6,5M</text>
+            <line stroke="#bccac0" stroke-dasharray="3,3" stroke-opacity="0.6" stroke-width="0.75" x1="50" x2="800" y1="140" y2="140"></line>
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="42" y="144">5M</text>
+            <line stroke="#bccac0" stroke-dasharray="3,3" stroke-opacity="0.6" stroke-width="0.75" x1="50" x2="800" y1="195" y2="195"></line>
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="42" y="199">3,5M</text>
+            <line stroke="#bccac0" stroke-opacity="0.8" stroke-width="1" x1="50" x2="800" y1="240" y2="240"></line>
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" text-anchor="end" x="42" y="244">2M</text>
+            <!-- Ligne de démarcation 2024 / 2025 -->
+            <line stroke="#0b1c30" stroke-dasharray="4,4" stroke-opacity="0.4" stroke-width="1.2" x1="425" x2="425" y1="20" y2="240"></line>
+            <text fill="#006948" font-family="JetBrains Mono" font-size="9" font-weight="700" x="430" y="28">DÉBUT PROJECTION (01/2025)</text>
+            <!-- Cône d'incertitude 95% -->
+            <path d="M 425 125 Q 500 110, 580 98 T 720 72 T 800 52 L 800 128 Q 720 142, 580 156 T 425 125 Z" fill="url(#coneGrad)"></path>
+            <!-- Historique Réel 2024 -->
+            <path d="M 60 178 L 95 165 L 130 172 L 165 155 L 200 148 L 235 152 L 270 142 L 305 138 L 340 146 L 375 132 L 410 128 L 425 125" fill="none" stroke="#545f73" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+            <circle cx="200" cy="148" fill="#545f73" r="3.5"></circle>
+            <circle cx="340" cy="146" fill="#545f73" r="3.5"></circle>
+            <circle cx="425" cy="125" fill="#545f73" r="4.5"></circle>
+            <!-- Projection Ensembliste 2025 -->
+            <path d="M 425 125 L 460 120 L 495 114 L 530 118 L 565 106 L 600 102 L 635 98 L 670 94 L 705 91 L 740 85 L 775 80 L 800 75" fill="none" stroke="url(#lineGrad)" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+            <circle cx="460" cy="120" fill="#006948" r="3.5"></circle>
+            <circle cx="565" cy="106" fill="#006948" r="3.5"></circle>
+            <circle cx="670" cy="94" fill="#006948" r="3.5"></circle>
+            <circle cx="800" cy="75" fill="#00855d" r="5" class="animate-pulse"></circle>
+            <!-- Étiquettes temporelles X -->
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" x="60" y="258">Jan 24</text>
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" x="165" y="258">Avr 24</text>
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" x="270" y="258">Juil 24</text>
+            <text fill="#6d7a72" font-family="JetBrains Mono" font-size="10" x="375" y="258">Oct 24</text>
+            <text fill="#006948" font-family="JetBrains Mono" font-size="10" font-weight="700" x="460" y="258">Jan 25</text>
+            <text fill="#006948" font-family="JetBrains Mono" font-size="10" font-weight="700" x="565" y="258">Avr 25</text>
+            <text fill="#006948" font-family="JetBrains Mono" font-size="10" font-weight="700" x="670" y="258">Juil 25</text>
+            <text fill="#006948" font-family="JetBrains Mono" font-size="10" font-weight="700" x="775" y="258">Déc 25</text>
+          </svg>
+
+          <!-- Badges des Sous-Modèles du Stacking -->
+          <div class="mt-3 pt-2 flex flex-wrap items-center justify-between gap-2 text-secondary text-label font-mono border-t border-surface-container">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-secondary"></span>
+              <span>ARIMA (SARIMAX p=2, d=1, q=2) : <strong class="text-on-surface">Poids 30%</strong></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+              <span>LSTM Bi-directionnel (Seq 24M) : <strong class="text-on-surface">Poids 38%</strong></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-brand-blue"></span>
+              <span>XGBoost Regressor (Depth 5) : <strong class="text-on-surface">Poids 32%</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tableau Mensuel Détaillé 2025 (Échéancier Prévisionnel) -->
+      <div class="card rounded-xl shadow-sm overflow-hidden flex flex-col">
+        <div class="p-4 bg-surface-container flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <lucide-icon name="calendar" [size]="18" class="text-primary" />
+            <h2 class="text-headline-sm text-on-surface font-semibold">Ventilation Mensuelle Projetée — Exercice 2025</h2>
+          </div>
+          <span class="text-badge uppercase px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface font-bold">
+            12 Mois (En FCFA)
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-body-sm">
+            <thead>
+              <tr class="bg-surface-container-low text-badge uppercase text-secondary font-bold">
+                <th class="py-2.5 px-4">Période</th>
+                <th class="py-2.5 px-4 text-right">Base Prédite (FCFA)</th>
+                <th class="py-2.5 px-4 text-right">Borne Min (IC 95%)</th>
+                <th class="py-2.5 px-4 text-right">Borne Max (IC 95%)</th>
+                <th class="py-2.5 px-4 text-right">N-1 (Réel 2024)</th>
+                <th class="py-2.5 px-4 text-right">Évolution</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container text-label font-mono">
+              @for (row of monthlyProjections().s1; track row.month) {
+                <tr class="hover:bg-surface-container-low/50 transition-colors">
+                  <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">{{ row.month }}</td>
+                  <td class="py-2.5 px-4 text-right font-bold text-primary">{{ row.predicted | fcfa }}</td>
+                  <td class="py-2.5 px-4 text-right text-secondary">{{ row.min | fcfa }}</td>
+                  <td class="py-2.5 px-4 text-right text-secondary">{{ row.max | fcfa }}</td>
+                  <td class="py-2.5 px-4 text-right text-secondary">{{ row.prior | fcfa }}</td>
+                  <td class="py-2.5 px-4 text-right text-primary font-bold">{{ row.evol }}</td>
+                </tr>
+              }
+              <!-- S2 Sommaire Agrégé -->
+              <tr class="bg-surface-container-high/40 font-semibold">
+                <td class="py-2.5 px-4 text-on-surface flex items-center gap-1.5 font-sans">
+                  <lucide-icon name="chevron-down" [size]="14" class="text-primary" />
+                  <span>{{ monthlyProjections().s2.label }}</span>
+                </td>
+                <td class="py-2.5 px-4 text-right font-bold text-primary">{{ monthlyProjections().s2.predicted | fcfa }}</td>
+                <td class="py-2.5 px-4 text-right text-secondary">{{ monthlyProjections().s2.min | fcfa }}</td>
+                <td class="py-2.5 px-4 text-right text-secondary">{{ monthlyProjections().s2.max | fcfa }}</td>
+                <td class="py-2.5 px-4 text-right text-secondary">{{ monthlyProjections().s2.prior | fcfa }}</td>
+                <td class="py-2.5 px-4 text-right text-primary font-bold">{{ monthlyProjections().s2.evol }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="bg-surface-container text-on-surface font-bold text-body-md">
+                <td class="py-3 px-4 font-sans">TOTAL EXERCICE 2025</td>
+                <td class="py-3 px-4 text-right text-primary font-mono font-bold">{{ monthlyProjections().total.predicted | fcfa }} FCFA</td>
+                <td class="py-3 px-4 text-right text-secondary font-mono text-body-sm font-normal">{{ monthlyProjections().total.min | fcfa }}</td>
+                <td class="py-3 px-4 text-right text-secondary font-mono text-body-sm font-normal">{{ monthlyProjections().total.max | fcfa }}</td>
+                <td class="py-3 px-4 text-right text-secondary font-mono">{{ monthlyProjections().total.prior | fcfa }}</td>
+                <td class="py-3 px-4 text-right text-primary font-mono font-bold">{{ monthlyProjections().total.evol }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonne Droite : Simulateur de Sensibilité & Recommandation SYSCOHADA (4 cols) -->
+    <div class="xl:col-span-4 flex flex-col gap-5">
+      <!-- Simulateur de Sensibilité Interactif -->
+      <div class="card p-5 shadow-sm flex flex-col gap-4">
+        <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+          <div class="flex items-center gap-2">
+            <lucide-icon name="sliders-horizontal" [size]="18" class="text-primary" />
+            <h3 class="text-headline-sm text-on-surface font-bold">Simulateur de Sensibilité</h3>
+          </div>
+          <button
+            type="button"
+            class="text-label text-primary hover:underline cursor-pointer font-bold"
+            (click)="resetSliders()"
+          >
+            Réinitialiser
+          </button>
+        </div>
+        <p class="text-body-sm text-secondary">
+          Ajustez les curseurs macroéconomiques et opérationnels pour recalibrer les soldes intermédiaires de gestion.
+        </p>
+
+        <!-- Slider 1 : Croissance CA -->
+        <div class="flex flex-col gap-1.5 p-2.5 rounded-lg bg-surface-container-low">
+          <div class="flex justify-between text-body-sm">
+            <span class="font-semibold text-on-surface">Taux de Croissance Ventes</span>
+            <span class="font-mono font-bold text-primary">{{ growthSlider() > 0 ? '+' : '' }}{{ growthSlider() | num: 1 }}%</span>
+          </div>
+          <input
+            type="range"
+            min="-10"
+            max="30"
+            step="0.5"
+            class="w-full accent-primary h-2 bg-surface-container-high rounded cursor-pointer"
+            [value]="growthSlider()"
+            (input)="growthSlider.set(+$any($event.target).value)"
+          />
+          <div class="flex justify-between text-badge text-secondary font-mono">
+            <span>-10% (Choc)</span>
+            <span>+12% (Consensus)</span>
+            <span>+30% (Agressif)</span>
+          </div>
+        </div>
+
+        <!-- Slider 2 : Inflation des Intrants -->
+        <div class="flex flex-col gap-1.5 p-2.5 rounded-lg bg-surface-container-low">
+          <div class="flex justify-between text-body-sm">
+            <span class="font-semibold text-on-surface">Inflation Achats & Matières (60)</span>
+            <span class="font-mono font-bold text-error">+{{ inflationSlider() | num: 1 }}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="20"
+            step="0.5"
+            class="w-full accent-primary h-2 bg-surface-container-high rounded cursor-pointer"
+            [value]="inflationSlider()"
+            (input)="inflationSlider.set(+$any($event.target).value)"
+          />
+          <div class="flex justify-between text-badge text-secondary font-mono">
+            <span>0% (Stable)</span>
+            <span>+8% (UEMOA 2025)</span>
+            <span>+20% (Pic)</span>
+          </div>
+        </div>
+
+        <!-- Slider 3 : Investissements Capex -->
+        <div class="flex flex-col gap-1.5 p-2.5 rounded-lg bg-surface-container-low">
+          <div class="flex justify-between text-body-sm">
+            <span class="font-semibold text-on-surface">CAPEX / Matériel (Compte 24)</span>
+            <span class="font-mono font-bold text-on-surface">{{ capexSlider() }} 000 000 FCFA</span>
+          </div>
+          <input
+            type="range"
+            min="10"
+            max="100"
+            step="5"
+            class="w-full accent-primary h-2 bg-surface-container-high rounded cursor-pointer"
+            [value]="capexSlider()"
+            (input)="capexSlider.set(+$any($event.target).value)"
+          />
+          <div class="flex justify-between text-badge text-secondary font-mono">
+            <span>10M FCFA</span>
+            <span>50M FCFA</span>
+            <span>100M FCFA</span>
+          </div>
+        </div>
+
+        <!-- Impact Projeté Dynamique -->
+        <div class="p-3.5 rounded-lg bg-primary/5 border border-primary/20 flex flex-col gap-2">
+          <span class="text-badge uppercase text-primary font-bold">Impact Estimé sur l'EBE 2025</span>
+          <div class="flex items-baseline justify-between">
+            <span class="text-body-sm text-secondary">EBE Recalibré :</span>
+            <span class="text-headline-sm font-bold text-primary font-mono">{{ simulatedEBE() | fcfa }} FCFA</span>
+          </div>
+          <div class="flex items-baseline justify-between border-t border-primary/10 pt-1.5">
+            <span class="text-body-sm text-secondary">Taux d'endettement net :</span>
+            <span class="font-mono font-bold text-on-surface">{{ simulatedGearing() }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ventilation des Revenus par Catégorie SYSCOHADA -->
+      <div class="card p-5 shadow-sm flex flex-col gap-3">
+        <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+          <span class="text-headline-sm text-on-surface font-bold">Décomposition du CA (2025)</span>
+          <span class="text-label text-primary font-semibold font-mono">Plan OHADA</span>
+        </div>
+        <div class="space-y-3 text-body-sm">
+          <!-- Item 1 -->
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-on-surface font-semibold">Ventes de marchandises (701)</span>
+              <span class="font-mono font-bold">{{ simulatedCA() * 0.65 | fcfa }} FCFA (65%)</span>
+            </div>
+            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-primary rounded-full" style="width: 65%;"></div>
+            </div>
+          </div>
+          <!-- Item 2 -->
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-on-surface font-semibold">Produits finis & transformés (702)</span>
+              <span class="font-mono font-bold">{{ simulatedCA() * 0.20 | fcfa }} FCFA (20%)</span>
+            </div>
+            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-brand-teal rounded-full" style="width: 20%;"></div>
+            </div>
+          </div>
+          <!-- Item 3 -->
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-on-surface font-semibold">Travaux & Services vendus (706)</span>
+              <span class="font-mono font-bold">{{ simulatedCA() * 0.11 | fcfa }} FCFA (11%)</span>
+            </div>
+            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-secondary rounded-full" style="width: 11%;"></div>
+            </div>
+          </div>
+          <!-- Item 4 -->
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-on-surface font-semibold">Subventions d'exploitation (71)</span>
+              <span class="font-mono font-bold">{{ simulatedCA() * 0.04 | fcfa }} FCFA (4%)</span>
+            </div>
+            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+              <div class="h-full bg-brand-blue rounded-full" style="width: 4%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommandation Prudentielle & Impact Notation Bancaire -->
+      <div class="card p-5 shadow-sm flex flex-col gap-3 relative overflow-hidden bg-gradient-to-br from-surface-container to-surface-container-low border border-primary/20">
+        <div class="flex items-center gap-2 text-primary">
+          <lucide-icon name="shield-check" [size]="18" />
+          <span class="text-badge uppercase font-bold tracking-wider">Avis Prudentiel Finança</span>
+        </div>
+        <div class="flex items-center justify-between pt-1">
+          <div>
+            <span class="text-body-sm text-secondary">Rating Prévisionnel UEMOA</span>
+            <div class="text-headline-md font-bold text-on-surface">Grade {{ fin.grade }} (Faible Risque)</div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-primary/20 text-primary flex items-center justify-center font-mono font-bold text-headline-sm">
+            {{ fin.grade }}
+          </div>
+        </div>
+        <p class="text-body-sm text-secondary leading-relaxed">
+          Le plan de trésorerie prévisionnel dégage un ratio de couverture du service de la dette (DSCR) projeté à <strong class="text-on-surface">1,84x</strong>, satisfaisant aux critères d'éligibilité du refinancement BCEAO. Les lignes court terme peuvent être maintenues sans exigence de garanties réelles supplémentaires.
+        </p>
+        <div class="pt-1 flex items-center gap-1.5 text-primary text-body-sm font-semibold">
+          <span>Consulter le rapport d'éligibilité crédit</span>
+          <lucide-icon name="arrow-right" [size]="14" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

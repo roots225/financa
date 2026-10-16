@@ -1,0 +1,498 @@
+<div class="flex w-full flex-col gap-5">
+  <!-- Entête de Page & Contexte Prudentiel Finança -->
+  <header class="card flex flex-col gap-2 p-5 shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <!-- Breadcrumb & Horodatage -->
+      <div class="flex flex-col gap-1">
+        <nav aria-label="Breadcrumb" class="flex items-center gap-1.5 text-secondary text-body-sm">
+          <span>Risque & Solvabilité</span>
+          <lucide-icon name="chevron-right" [size]="14" class="text-secondary"></lucide-icon>
+          <span>Analyse Multidimensionnelle</span>
+          <lucide-icon name="chevron-right" [size]="14" class="text-secondary"></lucide-icon>
+          <span class="font-semibold text-on-surface">{{ fin.entity.name }} (Notation Réglementaire SYSCOHADA)</span>
+        </nav>
+        <div class="flex flex-wrap items-center gap-2 mt-0.5">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-badge font-bold text-primary">
+            <span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+            Modèle Prédictif Finança {{ fin.model.modelVersion }} (ARIMA · LSTM · XGBoost Stacking)
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-surface-container px-2 py-0.5 text-label text-secondary">
+            <lucide-icon name="clock" [size]="12" class="text-secondary"></lucide-icon> Calibré BCEAO / UEMOA / CEMAC · {{ fin.model.lastRun }}
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-surface-container px-2 py-0.5 text-label text-on-surface-variant font-mono">
+            <lucide-icon name="line-chart" [size]="12" class="text-on-surface-variant"></lucide-icon> R² = {{ fin.model.r2 }} · MAPE {{ fin.model.mape }}%
+          </span>
+        </div>
+      </div>
+      <!-- Actions Rapides -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-lg bg-surface-container px-3 py-2 text-body-sm font-semibold text-on-surface hover:bg-surface-container-high transition-all"
+          (click)="downloadReport()"
+        >
+          <lucide-icon name="download" [size]="16"></lucide-icon>
+          Rapport Solvabilité (PDF Certifié)
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-body-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-container"
+          (click)="transmitAttestation()"
+        >
+          <lucide-icon name="shield-check" [size]="16"></lucide-icon>
+          Transmettre l'Attestation aux Banques
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 4 KPIs Majeurs de Solvabilité & Crédit -->
+  <section class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+    <!-- KPI 1 : Score de Crédit Global -->
+    <div class="card flex flex-col justify-between p-5 relative overflow-hidden">
+      <div class="bg-brand-gradient pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10"></div>
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-badge font-bold uppercase tracking-wider text-secondary">Score Finança Global</span>
+          <span class="inline-flex items-center gap-0.5 text-primary text-label font-bold">
+            <lucide-icon name="trending-up" [size]="14"></lucide-icon> +{{ fin.model.scoreDeltaVsPrior }} pts vs N-1
+          </span>
+        </div>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span class="tabular text-display font-extrabold tracking-tight text-on-surface">{{ fin.model.score }}</span>
+          <span class="tabular text-label text-secondary font-semibold">/ 1000</span>
+        </div>
+        <div class="mt-1 flex items-center gap-2">
+          <span class="rounded-full bg-success-fixed px-2 py-0.5 text-badge font-bold text-on-success-fixed">Grade {{ fin.grade }}</span>
+          <span class="text-body-sm text-secondary">Faible Risque de Crédit</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 flex flex-col gap-1 border-t border-surface-container">
+        <div class="flex justify-between text-label text-secondary">
+          <span>Échelle Prudentielle</span>
+          <span class="font-semibold text-success">Zone Sûre (Tier AAA/A)</span>
+        </div>
+        <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden flex">
+          <div class="h-full bg-error" style="width: 25%"></div>
+          <div class="h-full bg-amber-500" style="width: 25%"></div>
+          <div class="h-full bg-primary" style="width: 50%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 2 : Probabilité de Défaut (PD 12m) -->
+    <div class="card flex flex-col justify-between p-5 relative overflow-hidden">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-badge font-bold uppercase tracking-wider text-secondary">PD 12 Mois (Bâle III / BCEAO)</span>
+          <lucide-icon name="shield-check" [size]="18" class="text-primary"></lucide-icon>
+        </div>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span class="tabular text-display font-extrabold tracking-tight text-primary">{{ fin.model.probabilityOfDefault | num: 1 }}%</span>
+          <span class="text-label text-secondary font-mono">Benchmark : {{ fin.model.sectorPd | num: 1 }}%</span>
+        </div>
+        <div class="mt-1">
+          <span class="inline-flex items-center gap-1 text-body-sm text-success font-semibold">
+            <lucide-icon name="check-circle-2" [size]="14"></lucide-icon>
+            Marge de sécurité (-{{ fin.model.sectorPd - fin.model.probabilityOfDefault | num: 1 }} pts)
+          </span>
+        </div>
+      </div>
+      <div class="mt-4 pt-2 flex items-center justify-between bg-surface-container-low p-2 rounded-lg">
+        <div class="flex flex-col">
+          <span class="text-badge uppercase text-secondary">Secteur Distribution</span>
+          <span class="text-label font-semibold text-on-surface">Décile Supérieur (Top 5%)</span>
+        </div>
+        <svg class="h-7 w-20 text-primary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 100 30">
+          <path d="M 0,26 Q 20,22 40,15 T 80,8 T 100,4" stroke-linecap="round"></path>
+          <circle cx="100" cy="4" fill="currentColor" r="3"></circle>
+        </svg>
+      </div>
+    </div>
+
+    <!-- KPI 3 : Capacité d'Emprunt Maximale -->
+    <div class="card flex flex-col justify-between p-5">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-badge font-bold uppercase tracking-wider text-secondary">Capacité d'Emprunt Éligible</span>
+          <lucide-icon name="landmark" [size]="18" class="text-secondary"></lucide-icon>
+        </div>
+        <div class="flex items-baseline gap-1 mt-2">
+          <span class="tabular text-headline-lg font-extrabold tracking-tight text-on-surface">{{ fin.borrowingCapacity | mfcfa }}</span>
+          <span class="text-label text-secondary font-bold">FCFA</span>
+        </div>
+        <div class="mt-1 flex items-center gap-1.5 text-body-sm text-secondary">
+          <span>Dette Nette :</span>
+          <span class="tabular text-label font-bold text-on-surface">{{ fin.netDebt | mfcfa }} FCFA</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 flex flex-col gap-1 border-t border-surface-container">
+        <div class="flex justify-between text-label text-secondary">
+          <span>Levier Dette / CAF</span>
+          <span class="tabular text-label font-bold text-on-surface">{{ fin.leverageYears | num }} ans <span class="text-secondary font-normal">(Plafond {{ fin.model.maxLeverage | num: 1 }} ans)</span></span>
+        </div>
+        <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+          <div class="bg-brand-gradient h-full rounded-full" [style.width.%]="(fin.leverageYears / fin.model.maxLeverage) * 100"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 4 : Altman Z-Score Émergent (EM-Score) -->
+    <div class="card flex flex-col justify-between p-5">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-badge font-bold uppercase tracking-wider text-secondary">Altman EM-Score (OHADA)</span>
+          <lucide-icon name="gauge" [size]="18" class="text-primary"></lucide-icon>
+        </div>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span class="tabular text-display font-extrabold tracking-tight text-on-surface">{{ fin.altmanEm | num: 2 }}</span>
+          <span class="rounded bg-success-fixed px-2 py-0.5 text-badge font-bold text-on-success-fixed">Zone Sûre (&gt; 5.85)</span>
+        </div>
+        <div class="mt-1 flex items-center gap-1 text-success text-body-sm font-semibold">
+          <lucide-icon name="badge-check" [size]="14"></lucide-icon>
+          Zéro risque de détresse à 24 mois
+        </div>
+      </div>
+      <div class="mt-4 pt-3 flex items-center justify-between text-secondary text-label bg-surface-container-low px-2 py-1.5 rounded-lg border-t border-surface-container">
+        <span>Détresse &lt; 4.15</span>
+        <span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>
+        <span>Gris 4.15 - 5.85</span>
+        <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+        <span class="font-bold text-success">Sain &gt; 5.85</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grille Centrale : Radar Prudentiel vs Simulateur de Stress Test -->
+  <section class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+    <!-- Panneau Gauche/Centre : Évaluation par Dimension Prudentielle (7 cols) -->
+    <div class="card flex flex-col gap-3 p-5 lg:col-span-7">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-surface-container">
+        <div>
+          <h2 class="text-headline-sm text-on-surface font-bold tracking-tight">Matrice Prudentielle Multidimensionnelle</h2>
+          <p class="text-body-sm text-secondary">Évaluation dynamique basée sur la liasse certifiée (Bilan {{ fin.totalAssets | mfcfa }} · Trésorerie {{ fin.netCash | mfcfa }})</p>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1 bg-surface-container rounded-lg">
+          <span class="text-badge uppercase text-secondary font-bold">Pondération globale :</span>
+          <span class="tabular text-body-md font-bold text-primary">{{ fin.weightedScore | num: 1 }} / 100</span>
+        </div>
+      </div>
+
+      <!-- Radar SVG + 5 Dimensions -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center pt-1">
+        <!-- Polygone SVG (5 cols) -->
+        <div class="md:col-span-5 flex flex-col items-center justify-center p-3 bg-surface-container-low rounded-xl">
+          <span class="text-badge uppercase text-secondary font-bold mb-2">Polygone de Robustesse BCEAO</span>
+          <svg class="h-48 w-48 text-primary" viewBox="0 0 200 200">
+            <!-- Background Polygons -->
+            <polygon fill="none" points="100,20 176,75 147,165 53,165 24,75" stroke="#cbd5e1" stroke-dasharray="2,2" stroke-width="1"></polygon>
+            <polygon fill="none" points="100,45 153,84 133,145 67,145 47,84" stroke="#cbd5e1" stroke-width="1"></polygon>
+            <polygon fill="none" points="100,70 130,92 119,126 81,126 70,92" stroke="#cbd5e1" stroke-dasharray="2,2" stroke-width="1"></polygon>
+            <!-- Axes -->
+            <line stroke="#94a3b8" stroke-width="1" x1="100" x2="100" y1="100" y2="20"></line>
+            <line stroke="#94a3b8" stroke-width="1" x1="100" x2="176" y1="100" y2="75"></line>
+            <line stroke="#94a3b8" stroke-width="1" x1="100" x2="147" y1="100" y2="165"></line>
+            <line stroke="#94a3b8" stroke-width="1" x1="100" x2="53" y1="100" y2="165"></line>
+            <line stroke="#94a3b8" stroke-width="1" x1="100" x2="24" y1="100" y2="75"></line>
+            <!-- West Distribution polygon -->
+            <polygon fill="rgba(8, 100, 192, 0.2)" points="100,24 167,78 141,159 61,153 38,79" stroke="#0864c0" stroke-width="2.5"></polygon>
+            <circle cx="100" cy="24" fill="#0864c0" r="3.5"></circle>
+            <circle cx="167" cy="78" fill="#0864c0" r="3.5"></circle>
+            <circle cx="141" cy="159" fill="#0864c0" r="3.5"></circle>
+            <circle cx="61" cy="153" fill="#0864c0" r="3.5"></circle>
+            <circle cx="38" cy="79" fill="#0864c0" r="3.5"></circle>
+            <!-- Labels -->
+            <text fill="#545f73" font-size="8" font-weight="600" text-anchor="middle" x="100" y="14">Liquidité (95)</text>
+            <text fill="#545f73" font-size="8" font-weight="600" text-anchor="start" x="180" y="78">Solvabilité (92)</text>
+            <text fill="#545f73" font-size="8" font-weight="600" text-anchor="middle" x="150" y="178">DSCR (90)</text>
+            <text fill="#545f73" font-size="8" font-weight="600" text-anchor="middle" x="45" y="178">Recouvrement (82)</text>
+            <text fill="#545f73" font-size="8" font-weight="600" text-anchor="end" x="15" y="78">Marge (78)</text>
+          </svg>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="h-3 w-3 rounded-sm bg-primary/30 border border-primary"></span>
+            <span class="text-body-sm text-on-surface font-medium">{{ fin.entity.name }}</span>
+            <span class="h-0.5 w-3 bg-secondary ml-2"></span>
+            <span class="text-body-sm text-secondary">Norme Prudentielle</span>
+          </div>
+        </div>
+
+        <!-- 5 Dimensions Bars (7 cols) -->
+        <div class="md:col-span-7 flex flex-col gap-2">
+          @for (dim of fin.riskDimensions; track dim.key) {
+            <div class="rounded-lg bg-surface p-2.5 hover:bg-surface-container transition-all">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <lucide-icon [name]="dim.icon" [size]="16" class="text-primary"></lucide-icon>
+                  <span class="text-body-sm font-semibold text-on-surface">{{ dim.label }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="tabular text-label font-bold text-on-surface">{{ dim.value }}</span>
+                  <span class="rounded-full bg-success-fixed px-2 py-0.5 text-badge font-bold text-on-success-fixed">
+                    {{ dim.score }}/100 · {{ dim.verdict }}
+                  </span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-secondary text-label mt-1">
+                <span>{{ dim.norm }}</span>
+                <span class="text-primary font-medium">{{ dim.fact }}</span>
+              </div>
+              <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden mt-1.5">
+                <div class="bg-brand-gradient h-full rounded-full" [style.width.%]="dim.score"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Panneau Droit : Simulateur de Stress Test Dynamique (5 cols) -->
+    <div class="card flex flex-col gap-3 p-5 lg:col-span-5">
+      <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+        <div class="flex items-center gap-2">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <lucide-icon name="sliders-horizontal" [size]="16"></lucide-icon>
+          </div>
+          <div class="flex flex-col">
+            <h3 class="text-headline-sm font-bold text-on-surface">Simulateur de Stress Test</h3>
+            <span class="text-body-sm text-secondary">Sensibilité aux chocs macro-financiers UEMOA</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="text-primary hover:text-primary-container text-label font-bold underline cursor-pointer"
+          (click)="resetStressTest()"
+        >
+          Réinitialiser
+        </button>
+      </div>
+
+      <!-- Paramètres du Simulateur (Curseurs) -->
+      <div class="flex flex-col gap-3">
+        <!-- Choc CA -->
+        <div class="flex flex-col gap-1 bg-surface-container-low p-2.5 rounded-lg">
+          <div class="flex items-center justify-between">
+            <label class="text-body-sm font-semibold text-on-surface flex items-center gap-1.5" for="slider-ca">
+              <lucide-icon name="trending-down" [size]="14" class="text-secondary"></lucide-icon>
+              Choc sur Chiffre d'Affaires
+            </label>
+            <span class="tabular font-bold text-error bg-error-container/60 px-2 py-0.5 rounded text-label">
+              {{ salesShock() }}%
+            </span>
+          </div>
+          <input
+            id="slider-ca"
+            type="range"
+            min="-30"
+            max="20"
+            step="5"
+            class="w-full accent-primary h-1.5 bg-surface-container rounded-lg cursor-pointer"
+            [value]="salesShock()"
+            (input)="salesShock.set(+$any($event.target).value)"
+          />
+          <div class="flex justify-between text-label text-secondary">
+            <span>-30% (Choc Sévère)</span>
+            <span>0% (Statut Quo)</span>
+            <span>+20% (Croissance)</span>
+          </div>
+        </div>
+
+        <!-- Hausse Taux -->
+        <div class="flex flex-col gap-1 bg-surface-container-low p-2.5 rounded-lg">
+          <div class="flex items-center justify-between">
+            <label class="text-body-sm font-semibold text-on-surface flex items-center gap-1.5" for="slider-taux">
+              <lucide-icon name="percent" [size]="14" class="text-secondary"></lucide-icon>
+              Resserrement Monétaire BCEAO
+            </label>
+            <span class="tabular font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-label">
+              +{{ rateShock() }} bps
+            </span>
+          </div>
+          <input
+            id="slider-taux"
+            type="range"
+            min="0"
+            max="300"
+            step="50"
+            class="w-full accent-primary h-1.5 bg-surface-container rounded-lg cursor-pointer"
+            [value]="rateShock()"
+            (input)="rateShock.set(+$any($event.target).value)"
+          />
+          <div class="flex justify-between text-label text-secondary">
+            <span>0 bps (Neutre)</span>
+            <span>+150 bps</span>
+            <span>+300 bps (Choc Taux)</span>
+          </div>
+        </div>
+
+        <!-- Allongement DSO -->
+        <div class="flex flex-col gap-1 bg-surface-container-low p-2.5 rounded-lg">
+          <div class="flex items-center justify-between">
+            <label class="text-body-sm font-semibold text-on-surface flex items-center gap-1.5" for="slider-dso">
+              <lucide-icon name="hourglass" [size]="14" class="text-secondary"></lucide-icon>
+              Dégradation Recouvrement Clients
+            </label>
+            <span class="tabular font-bold text-on-surface bg-surface-container px-2 py-0.5 rounded text-label">
+              +{{ dsoShock() }} Jours
+            </span>
+          </div>
+          <input
+            id="slider-dso"
+            type="range"
+            min="0"
+            max="45"
+            step="5"
+            class="w-full accent-primary h-1.5 bg-surface-container rounded-lg cursor-pointer"
+            [value]="dsoShock()"
+            (input)="dsoShock.set(+$any($event.target).value)"
+          />
+          <div class="flex justify-between text-label text-secondary">
+            <span>0 j ({{ fin.dso | num: 0 }} j normaux)</span>
+            <span>+15 j</span>
+            <span>+45 j (critique)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résultat Dynamique du Stress Test -->
+      <div class="bg-primary/5 border border-primary/20 p-4 rounded-xl flex flex-col gap-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-badge font-bold uppercase text-primary">Impact Simulé Instantané</span>
+          <span class="inline-flex items-center gap-1 text-primary text-label font-bold">
+            <lucide-icon name="shield" [size]="14"></lucide-icon> Résilience {{ stressResult().resilience }}
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="p-2.5 rounded-lg bg-surface-container-lowest shadow-sm">
+            <span class="text-badge uppercase text-secondary">Nouveau Score Projeté</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="tabular text-headline-md font-bold text-on-surface">{{ stressResult().score }}</span>
+              <span class="text-label text-secondary">/1000</span>
+              <span class="ml-auto rounded bg-amber-100 text-amber-800 text-badge font-bold px-1.5 py-0.2">
+                Grade {{ stressResult().grade }}
+              </span>
+            </div>
+            <span class="text-label text-secondary">vs {{ fin.model.score }} initial ({{ stressResult().scoreDelta }} pts)</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-surface-container-lowest shadow-sm">
+            <span class="text-badge uppercase text-secondary">Trésorerie Résiduelle</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="tabular text-headline-md font-bold text-primary">{{ stressResult().residualCash | mfcfa }}</span>
+              <span class="text-label text-secondary">FCFA</span>
+            </div>
+            <span class="text-label text-success font-medium">Excédentaire (Pas d'impasse)</span>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-primary/10 flex flex-col gap-1">
+          <div class="flex items-center justify-between text-body-sm">
+            <span class="text-secondary font-medium">Seuil de rupture de liquidité :</span>
+            <span class="tabular text-label font-bold text-error">{{ stressResult().liquidityBreakpointPct | num: 0 }}% de baisse de CA</span>
+          </div>
+          <p class="text-body-sm text-on-surface-variant leading-relaxed">
+            <strong class="text-primary font-semibold">Avis Moteur IA :</strong> Excellente robustesse aux tensions de trésorerie court terme grâce au matelas de {{ fin.netCash | mfcfa }} FCFA et au faible levier actuel ({{ fin.leverageYears | num }} ans). La solvabilité demeure éligible aux financements d'exploitation UEMOA.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Inférieure : Système d'Alerte Précoce (EWS) & Offres Bancaires -->
+  <section class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+    <!-- EWS Early Warning System (7 cols) -->
+    <div class="card flex flex-col gap-3 p-5 lg:col-span-7">
+      <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+        <div class="flex items-center gap-2">
+          <lucide-icon name="bell-ring" [size]="20" class="text-primary"></lucide-icon>
+          <div>
+            <h3 class="text-headline-sm font-bold text-on-surface">Système d'Alerte Précoce (Early Warning System - EWS)</h3>
+            <p class="text-body-sm text-secondary">Détection proactive d'anomalies financières & conformité Acte Uniforme OHADA</p>
+          </div>
+        </div>
+        <span class="rounded-full bg-success-fixed px-3 py-1 text-label font-bold text-on-success-fixed">
+          Aucune anomalie critique
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <div class="rounded-lg bg-surface-container-low p-3 flex items-start gap-3">
+          <lucide-icon name="check-circle-2" [size]="16" class="text-success mt-0.5 shrink-0"></lucide-icon>
+          <div class="flex-1">
+            <p class="text-body-sm font-bold text-on-surface">Capitaux propres &gt; 50% du capital social (Art. 664 OHADA)</p>
+            <p class="text-xs text-secondary mt-0.5">
+              Capitaux propres actuels : {{ fin.equity | mfcfa }} FCFA pour un capital de {{ fin.bs.equity.capital.amount | mfcfa }} FCFA. Ratio de solvabilité à {{ (fin.equity / fin.bs.equity.capital.amount) * 100 | num: 0 }}% (seuil légal respecté).
+            </p>
+          </div>
+        </div>
+
+        <div class="rounded-lg bg-surface-container-low p-3 flex items-start gap-3">
+          <lucide-icon name="check-circle-2" [size]="16" class="text-success mt-0.5 shrink-0"></lucide-icon>
+          <div class="flex-1">
+            <p class="text-body-sm font-bold text-on-surface">Absence d'impayés bancaires déclarés (Centrale des Risques BCEAO)</p>
+            <p class="text-xs text-secondary mt-0.5">
+              Aucun incident de paiement sur effets ou chèques n'est enregistré auprès de la BCEAO au cours des 24 derniers mois.
+            </p>
+          </div>
+        </div>
+
+        <div class="rounded-lg bg-surface-container-low p-3 flex items-start gap-3">
+          <lucide-icon name="info" [size]="16" class="text-primary mt-0.5 shrink-0"></lucide-icon>
+          <div class="flex-1">
+            <p class="text-body-sm font-bold text-on-surface">Surveillance : créances clients &gt; 90 jours ({{ fin.overdue90Rate | num: 1 }}%)</p>
+            <p class="text-xs text-secondary mt-0.5">
+              Montant résiduel de {{ fin.receivablesAging[3].amount | mfcfa }} FCFA en cours de recouvrement amiable sans litige contentieux.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offres Bancaires Pré-Approuvées (5 cols) -->
+    <div class="card flex flex-col justify-between p-5 lg:col-span-5">
+      <div>
+        <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+          <div class="flex items-center gap-2">
+            <lucide-icon name="landmark" [size]="20" class="text-primary"></lucide-icon>
+            <div>
+              <h3 class="text-headline-sm font-bold text-on-surface">Lignes Bancaires Actives</h3>
+              <p class="text-body-sm text-secondary">Accords de financement du pool bancaire UEMOA</p>
+            </div>
+          </div>
+          <span class="rounded bg-primary/10 px-2 py-0.5 text-label font-bold text-primary">{{ fin.bankOffersAvailable }} Accords</span>
+        </div>
+
+        <div class="flex flex-col gap-2 mt-3">
+          @for (bank of fin.partnerBanks; track bank.name) {
+            <div class="rounded-lg bg-surface-container-low p-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex h-8 w-8 items-center justify-center rounded-lg text-white font-bold"
+                  [class.bg-navy]="bank.tone === 'navy'"
+                  [class.bg-primary]="bank.tone === 'blue'"
+                  [class.bg-secondary]="bank.tone === 'slate'"
+                >
+                  {{ bank.code }}
+                </div>
+                <div>
+                  <p class="text-body-sm font-bold text-on-surface">{{ bank.name }}</p>
+                  <p class="text-xs text-secondary">{{ bank.offer }} · Plafond {{ bank.amount | mfcfa: 0 }} FCFA</p>
+                </div>
+              </div>
+              <span
+                class="rounded px-2 py-1 text-badge font-bold"
+                [class]="bank.status === 'Accord' ? 'bg-success-fixed text-on-success-fixed' : 'bg-surface-container text-secondary'"
+              >
+                {{ bank.status }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-surface-container mt-3">
+        <p class="text-xs text-secondary leading-relaxed">
+          Taux moyen pondéré négocié : <strong class="text-on-surface">{{ fin.model.preNegotiatedRate * 100 | num }}%</strong> · Matelas de liquidité résiduel conforme aux exigences de garantie BCEAO.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>

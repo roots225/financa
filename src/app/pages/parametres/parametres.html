@@ -1,0 +1,646 @@
+<div class="flex flex-col w-full gap-5">
+  <!-- Top Context & Command Header -->
+  <div class="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-surface-container">
+    <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-gradient-to-br from-brand-teal/15 via-brand-blue/10 to-transparent pointer-events-none blur-2xl"></div>
+
+    <div class="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-teal/15 text-primary font-mono text-xs font-semibold border border-brand-teal/20">
+            <lucide-icon name="shield-check" size="14" class="text-brand-teal" />
+            Certificat eIDAS Actif • Expire le 15 Nov 2026
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-secondary font-mono text-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+            SYSCOHADA Rév. 2024 / BCEAO Compliant
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-secondary font-mono text-xs">
+            FIPS 140-3 Level 3 HSM
+          </span>
+        </div>
+        <h1 class="text-headline-lg font-bold text-on-surface tracking-tight mb-1">
+          Paramètres & Gouvernance Institutionnelle
+        </h1>
+        <p class="text-body-md text-secondary">
+          Administration de la sécurité cryptographique, séparation stricte des tâches (RBAC/SOX), consolidation multi-filiales UEMOA/CEMAC et conformité prudentielle OHADA.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          (click)="openAuditLog()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-low text-on-surface text-body-sm font-semibold hover:bg-surface-container shadow-sm border border-surface-container transition-colors"
+        >
+          <lucide-icon name="history" size="16" class="text-secondary" />
+          <span>Journal d'Audit SSI</span>
+        </button>
+        <button
+          type="button"
+          (click)="saveSettings()"
+          [disabled]="isSaving()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-body-sm font-semibold hover:bg-primary-container shadow-sm transition-all disabled:opacity-50"
+        >
+          <lucide-icon [name]="isSaving() ? 'loader-2' : 'save'" size="16" [class.animate-spin]="isSaving()" />
+          <span>{{ isSaving() ? 'Enregistrement…' : 'Sauvegarder les modifications' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="mt-6 pt-4 flex flex-wrap items-center gap-1.5 bg-surface-container-low p-1 rounded-xl border border-surface-container">
+      <button
+        type="button"
+        (click)="switchTab('org')"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold transition-all"
+        [class.bg-white]="activeTab() === 'org'"
+        [class.text-primary]="activeTab() === 'org'"
+        [class.shadow-sm]="activeTab() === 'org'"
+        [class.text-secondary]="activeTab() !== 'org'"
+        [class.hover:text-on-surface]="activeTab() !== 'org'"
+      >
+        <lucide-icon name="building-2" size="16" />
+        <span>Organisation & Filiales (UEMOA/CEMAC)</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="switchTab('rbac')"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold transition-all"
+        [class.bg-white]="activeTab() === 'rbac'"
+        [class.text-primary]="activeTab() === 'rbac'"
+        [class.shadow-sm]="activeTab() === 'rbac'"
+        [class.text-secondary]="activeTab() !== 'rbac'"
+        [class.hover:text-on-surface]="activeTab() !== 'rbac'"
+      >
+        <lucide-icon name="id-card" size="16" />
+        <span>Habilitations & Rôles (RBAC)</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="switchTab('hsm')"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold transition-all"
+        [class.bg-white]="activeTab() === 'hsm'"
+        [class.text-primary]="activeTab() === 'hsm'"
+        [class.shadow-sm]="activeTab() === 'hsm'"
+        [class.text-secondary]="activeTab() !== 'hsm'"
+        [class.hover:text-on-surface]="activeTab() !== 'hsm'"
+      >
+        <lucide-icon name="key" size="16" />
+        <span>Sécurité Cryptographique & Clés HSM</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="switchTab('gateways')"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-semibold transition-all"
+        [class.bg-white]="activeTab() === 'gateways'"
+        [class.text-primary]="activeTab() === 'gateways'"
+        [class.shadow-sm]="activeTab() === 'gateways'"
+        [class.text-secondary]="activeTab() !== 'gateways'"
+        [class.hover:text-on-surface]="activeTab() !== 'gateways'"
+      >
+        <lucide-icon name="network" size="16" />
+        <span>Passerelles & Webhooks Bancaires</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Primary Content Grid -->
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+    <!-- Left / Center Main Pane (Cols 1-8) -->
+    <div class="xl:col-span-8 flex flex-col gap-5">
+
+      <!-- TAB 1: ORGANISATION & FILIALES -->
+      @if (activeTab() === 'org') {
+        <!-- Entité Pivot -->
+        <section class="rounded-xl bg-white p-6 shadow-sm border border-surface-container">
+          <div class="flex items-center justify-between pb-4 mb-4 border-b border-surface-container">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                <lucide-icon name="landmark" size="20" />
+              </div>
+              <div>
+                <h2 class="text-headline-sm font-bold text-on-surface">Entité Pivot & Référentiel SYSCOHADA</h2>
+                <p class="text-body-sm text-secondary">Configuration centrale pour la consolidation légale UEMOA</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-surface-container text-secondary font-mono text-xs font-semibold">
+              ID: WST-CI-2024
+            </span>
+          </div>
+
+          <form class="space-y-4" (submit)="$event.preventDefault()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-mono text-xs font-bold text-secondary mb-1">Raison Sociale Légale</label>
+                <div class="relative">
+                  <input
+                    [(ngModel)]="companyName"
+                    name="companyName"
+                    class="w-full h-10 px-3 rounded-lg bg-surface-container-low text-body-md text-on-surface border border-surface-container focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                    type="text"
+                  />
+                  <lucide-icon name="badge-check" size="18" class="absolute right-3 top-2.5 text-primary" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs font-bold text-secondary mb-1">Forme Juridique</label>
+                <input
+                  [(ngModel)]="legalForm"
+                  name="legalForm"
+                  class="w-full h-10 px-3 rounded-lg bg-surface-container-low text-body-md text-on-surface border border-surface-container focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  type="text"
+                />
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs font-bold text-secondary mb-1">RCCM (Registre du Commerce)</label>
+                <input
+                  [(ngModel)]="rccm"
+                  name="rccm"
+                  class="w-full h-10 px-3 rounded-lg bg-surface-container-low font-mono text-body-sm text-on-surface border border-surface-container focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  type="text"
+                />
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs font-bold text-secondary mb-1">Compte Contribuable (DGI)</label>
+                <input
+                  [(ngModel)]="dgiAccount"
+                  name="dgiAccount"
+                  class="w-full h-10 px-3 rounded-lg bg-surface-container-low font-mono text-body-sm text-on-surface border border-surface-container focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  type="text"
+                />
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs font-bold text-secondary mb-1">Capital Social Libéré</label>
+                <div class="relative flex items-center">
+                  <input
+                    [(ngModel)]="shareCapital"
+                    name="shareCapital"
+                    class="w-full h-10 px-3 pr-16 rounded-lg bg-surface-container-low font-mono font-bold text-on-surface border border-surface-container focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all text-right"
+                    type="text"
+                  />
+                  <span class="absolute right-3 font-mono text-xs text-secondary">FCFA</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs font-bold text-secondary mb-1">Devise Pivot de Consolidation</label>
+                <select
+                  [(ngModel)]="currency"
+                  name="currency"
+                  class="w-full h-10 px-3 rounded-lg bg-surface-container-low text-body-md text-on-surface border border-surface-container focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                >
+                  <option>Franc CFA UEMOA (XOF) - Taux fixe EUR: 655.957</option>
+                  <option>Franc CFA CEMAC (XAF) - Parité 1:1 XOF</option>
+                  <option>Euro (EUR)</option>
+                  <option>Dollar Américain (USD)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs font-bold text-secondary mb-1">Norme Comptable Active</label>
+                <input
+                  [(ngModel)]="accountingStandard"
+                  name="accountingStandard"
+                  readonly
+                  class="w-full h-10 px-3 rounded-lg bg-surface-container-high text-body-md text-on-surface cursor-not-allowed border border-surface-container"
+                  type="text"
+                />
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs font-bold text-secondary mb-1">Exercice Comptable Actif</label>
+                <input
+                  [(ngModel)]="fiscalYear"
+                  name="fiscalYear"
+                  class="w-full h-10 px-3 rounded-lg bg-surface-container-low text-body-md text-on-surface border border-surface-container focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  type="text"
+                />
+              </div>
+            </div>
+          </form>
+
+          <!-- Filiales UEMOA / CEMAC -->
+          <div class="mt-6 pt-5 border-t border-surface-container">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-headline-sm font-bold text-on-surface">Périmètre des Filiales Consolidées</h3>
+                <p class="text-body-sm text-secondary">Agrégation des flux inter-entreprises et balances consolidées</p>
+              </div>
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-body-sm font-semibold hover:bg-primary/20 transition-colors"
+              >
+                <lucide-icon name="user-plus" size="15" />
+                <span>Ajouter une filiale UEMOA</span>
+              </button>
+            </div>
+
+            <div class="space-y-2">
+              @for (f of subsidiaries; track f.code) {
+                <div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-all border border-surface-container">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-surface-container-highest text-primary flex items-center justify-center font-bold font-mono text-xs">
+                      {{ f.code }}
+                    </div>
+                    <div>
+                      <div class="text-body-sm font-semibold text-on-surface">{{ f.name }}</div>
+                      <div class="font-mono text-xs text-secondary">{{ f.location }}</div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-4">
+                    <div class="text-right">
+                      <div class="font-mono text-body-sm font-bold text-on-surface">{{ f.flows }}</div>
+                      <div class="text-[11px] text-secondary">Flux consolidés S1</div>
+                    </div>
+                    <span
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-mono text-xs font-semibold"
+                      [class.bg-brand-teal/15]="f.tone === 'success'"
+                      [class.text-primary]="f.tone === 'success'"
+                      [class.bg-secondary-container]="f.tone === 'pending'"
+                      [class.text-on-secondary-container]="f.tone === 'pending'"
+                    >
+                      <span
+                        class="w-1.5 h-1.5 rounded-full inline-block"
+                        [class.bg-primary]="f.tone === 'success'"
+                        [class.bg-secondary]="f.tone === 'pending'"
+                      ></span>
+                      {{ f.status }}
+                    </span>
+                    <button class="p-1 text-secondary hover:text-on-surface" type="button" aria-label="Options">
+                      <lucide-icon name="more-vertical" size="18" />
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- TAB 2: HABILITATIONS & RBAC -->
+      @if (activeTab() === 'rbac' || activeTab() === 'org') {
+        <section class="rounded-xl bg-white p-6 shadow-sm border border-surface-container">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-surface-container">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                <lucide-icon name="shield-check" size="20" />
+              </div>
+              <div>
+                <h2 class="text-headline-sm font-bold text-on-surface">Habilitations & Ségrégation des Fonctions (RBAC)</h2>
+                <p class="text-body-sm text-secondary">Règles prudentielles de double signature et journalisation immuable</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-primary text-body-sm font-semibold hover:bg-surface-container-high transition-colors"
+            >
+              <lucide-icon name="user-plus" size="15" />
+              <span>Nouvel Utilisateur</span>
+            </button>
+          </div>
+
+          <!-- Double signature policy banner -->
+          <div class="mb-4 p-4 rounded-xl bg-surface-container-high flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-surface-container">
+            <div class="flex items-center gap-3">
+              <lucide-icon name="badge-check" size="22" class="text-primary shrink-0" />
+              <div>
+                <div class="text-body-sm font-bold text-on-surface">Règle de Double Signature Imposée (BCEAO Norm A-19)</div>
+                <div class="text-xs text-secondary mt-0.5">
+                  Tout engagement financier ou virement &gt; 25 000 000 FCFA requiert la co-signature DAF + Mandataire Social.
+                </div>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+              <input
+                type="checkbox"
+                [checked]="doubleSignature()"
+                (change)="doubleSignature.set(!doubleSignature())"
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+          </div>
+
+          <!-- RBAC Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="bg-surface-container-low text-secondary text-body-sm uppercase tracking-wider">
+                  <th class="py-2.5 px-3 rounded-l-lg font-semibold">Utilisateur & Entité</th>
+                  <th class="py-2.5 px-3 font-semibold">Rôle Sécurisé</th>
+                  <th class="py-2.5 px-3 font-semibold">Mode d'Accréditation</th>
+                  <th class="py-2.5 px-3 font-semibold">Périmètre / Droits</th>
+                  <th class="py-2.5 px-3 text-right rounded-r-lg font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-surface-container text-body-sm">
+                @for (u of users; track u.email) {
+                  <tr class="hover:bg-surface-container-low/50 transition-colors">
+                    <td class="py-3 px-3">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                          {{ u.initials }}
+                        </div>
+                        <div>
+                          <div class="font-semibold text-on-surface">{{ u.name }}</div>
+                          <div class="font-mono text-xs text-secondary">{{ u.email }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-3 px-3">
+                      <span class="inline-flex px-2 py-0.5 rounded-full bg-surface-container text-primary font-mono text-xs font-semibold">
+                        {{ u.role }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-3">
+                      <div class="font-mono text-xs text-on-surface flex items-center gap-1">
+                        <lucide-icon name="key" size="13" class="text-primary" />
+                        {{ u.authMethod }}
+                      </div>
+                      <div class="text-[10px] text-secondary">{{ u.authDetail }}</div>
+                    </td>
+                    <td class="py-3 px-3">
+                      <span class="text-on-surface font-medium">{{ u.scope }}</span>
+                    </td>
+                    <td class="py-3 px-3 text-right">
+                      <button class="p-1 rounded hover:bg-surface-container text-secondary hover:text-on-surface" type="button" aria-label="Modifier">
+                        <lucide-icon name="edit-3" size="16" />
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <!-- TAB 3: HSM & SÉCURITÉ CRYPTOGRAPHIQUE -->
+      @if (activeTab() === 'hsm') {
+        <section class="rounded-xl bg-white p-6 shadow-sm border border-surface-container space-y-4">
+          <div class="flex items-center justify-between pb-4 border-b border-surface-container">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                <lucide-icon name="key" size="20" />
+              </div>
+              <div>
+                <h2 class="text-headline-sm font-bold text-on-surface">Sécurité Cryptographique & Modules HSM</h2>
+                <p class="text-body-sm text-secondary">Gestionnaire de certificats X.509, scellement SHA-256 et clés FIPS 140-3</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-brand-teal/15 text-primary font-mono text-xs font-bold">
+              Niveau Bancaire L3
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-surface-container-low border border-surface-container flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-body-sm font-bold text-on-surface">Certificat Racine eIDAS</span>
+                  <span class="font-mono text-xs text-primary font-bold">SHA-256 / RSA 4096</span>
+                </div>
+                <p class="text-xs text-secondary leading-relaxed">
+                  Autorité de certification autorisée BCEAO. Utilisée pour le scellement juridique des protocoles de syndication et des liasses fiscales.
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-surface-container flex items-center justify-between text-xs font-mono text-secondary">
+                <span>Empreinte: 8F0A2C9D...4E12</span>
+                <span class="text-primary font-bold">Valide jusqu'en 2026</span>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-surface-container-low border border-surface-container flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-body-sm font-bold text-on-surface">Module HSM FIPS 140-3</span>
+                  <span class="font-mono text-xs text-brand-teal font-bold">Hardware Enclave</span>
+                </div>
+                <p class="text-xs text-secondary leading-relaxed">
+                  Matériel dédié inviolable avec détection d'intrusion physique et zeroisation automatique en cas de falsification de session.
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-surface-container flex items-center justify-between text-xs font-mono text-secondary">
+                <span>Latence d'opération: 2.1 ms</span>
+                <span class="text-brand-teal font-bold">Tamper-Proof OK</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- TAB 4: PASSERELLES & WEBHOOKS -->
+      @if (activeTab() === 'gateways') {
+        <section class="rounded-xl bg-white p-6 shadow-sm border border-surface-container space-y-4">
+          <div class="flex items-center justify-between pb-4 border-b border-surface-container">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                <lucide-icon name="network" size="20" />
+              </div>
+              <div>
+                <h2 class="text-headline-sm font-bold text-on-surface">Configuration Passerelles & Webhooks Bancaires</h2>
+                <p class="text-body-sm text-secondary">Flux API sécurisés vers les chambres de compensation UEMOA / CEMAC</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              (click)="testGateways()"
+              class="px-3 py-1.5 rounded-lg bg-primary text-white text-body-sm font-semibold hover:bg-primary-container transition-colors"
+            >
+              Tester les flux
+            </button>
+          </div>
+
+          <div class="space-y-3">
+            <div class="p-4 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <lucide-icon name="network" size="20" class="text-primary" />
+                <div>
+                  <div class="text-body-sm font-bold text-on-surface">Endpoint Webhook BCEAO RTGS</div>
+                  <div class="font-mono text-xs text-secondary">https://api.centrafin.ci/v2/webhooks/rtgs-uemoa</div>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-brand-teal/15 text-primary font-mono text-xs font-semibold">200 OK</span>
+            </div>
+
+            <div class="p-4 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <lucide-icon name="network" size="20" class="text-primary" />
+                <div>
+                  <div class="text-body-sm font-bold text-on-surface">Flux EBICS TS Multi-Banques</div>
+                  <div class="font-mono text-xs text-secondary">ebics.sgbci.ci:443 / ecobank.ebics.int:443</div>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-brand-teal/15 text-primary font-mono text-xs font-semibold">Connecté</span>
+            </div>
+          </div>
+        </section>
+      }
+
+    </div>
+
+    <!-- Right Sidebar Pane (Cols 9-12) -->
+    <div class="xl:col-span-4 flex flex-col gap-5">
+      <!-- Box 1: Open Banking & Passerelles EBICS -->
+      <section class="rounded-xl bg-white p-5 shadow-sm border border-surface-container">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-surface-container">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <lucide-icon name="arrow-left-right" size="18" />
+            </div>
+            <div>
+              <h3 class="text-headline-sm font-bold text-on-surface">Connecteurs Bancaires</h3>
+              <p class="text-xs text-secondary">Passerelles RTGS & EBICS TS</p>
+            </div>
+          </div>
+          <span class="w-2.5 h-2.5 rounded-full bg-brand-teal animate-pulse"></span>
+        </div>
+
+        <div class="space-y-2.5">
+          <!-- Gateway 1 -->
+          <div class="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1.5 border border-surface-container">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <lucide-icon name="landmark" size="16" class="text-primary" />
+                <span class="text-body-sm font-bold text-on-surface">Ecobank Open Banking API</span>
+              </div>
+              <span class="font-mono text-[10px] px-2 py-0.5 rounded-full bg-brand-teal/15 text-primary font-semibold">Active</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-mono text-secondary">
+              <span>Token OAuth2.0</span>
+              <span class="text-primary font-medium">Rafraîchi il y a 2h</span>
+            </div>
+            <div class="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+              <div class="bg-primary h-full w-[94%]"></div>
+            </div>
+          </div>
+
+          <!-- Gateway 2 -->
+          <div class="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1.5 border border-surface-container">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <lucide-icon name="shield-check" size="16" class="text-secondary" />
+                <span class="text-body-sm font-bold text-on-surface">SGBCI EBICS TS (Côte d'Ivoire)</span>
+              </div>
+              <span class="font-mono text-[10px] px-2 py-0.5 rounded-full bg-brand-teal/15 text-primary font-semibold">Valide</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-mono text-secondary">
+              <span>Certificat RSA 4096</span>
+              <span class="text-secondary font-medium">Expire Mai 2027</span>
+            </div>
+            <div class="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+              <div class="bg-primary h-full w-[98%]"></div>
+            </div>
+          </div>
+
+          <!-- Gateway 3 -->
+          <div class="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1.5 border border-surface-container">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <lucide-icon name="refresh-cw" size="16" class="text-primary" />
+                <span class="text-body-sm font-bold text-on-surface">BOAD Syndication Reporting</span>
+              </div>
+              <span class="font-mono text-[10px] px-2 py-0.5 rounded-full bg-brand-teal/15 text-primary font-semibold">Connecté</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-mono text-secondary">
+              <span>Flux MT940 / CAMT.053</span>
+              <span class="text-primary font-medium">Synchronisation 04:00 GMT</span>
+            </div>
+            <div class="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+              <div class="bg-primary h-full w-full"></div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          (click)="testGateways()"
+          class="w-full mt-3 py-2 rounded-lg bg-surface-container text-on-surface text-body-sm font-semibold hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2"
+        >
+          <lucide-icon name="refresh-cw" size="15" />
+          <span>Tester les flux RTGS & Webhooks</span>
+        </button>
+      </section>
+
+      <!-- Box 2: Archivage Légal & Scellement OHADA -->
+      <section class="rounded-xl bg-white p-5 shadow-sm border border-surface-container">
+        <div class="flex items-center gap-3 pb-3 mb-3 border-b border-surface-container">
+          <div class="w-9 h-9 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+            <lucide-icon name="archive" size="18" />
+          </div>
+          <div>
+            <h3 class="text-headline-sm font-bold text-on-surface">Archivage Légal OHADA</h3>
+            <p class="text-xs text-secondary">Article 24 - Conservation probante 10 ans</p>
+          </div>
+        </div>
+
+        <div class="space-y-2.5">
+          <div class="p-3 rounded-lg bg-surface-container-low border border-surface-container">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-body-sm font-medium text-on-surface">Coffre-fort Numérique Scellé</span>
+              <span class="font-mono text-xs font-bold text-primary">100% Intègre</span>
+            </div>
+            <p class="text-xs text-secondary">Horodatage certifié RFC 3161 avec chaîne de blocs institutionnelle.</p>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low border border-surface-container">
+            <span class="text-body-sm text-on-surface">Volume d'archives certifiées</span>
+            <span class="font-mono text-body-sm font-bold text-on-surface">2.4 TB / 10 TB</span>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low border border-surface-container">
+            <span class="text-body-sm text-on-surface">Prochain audit externe Mazars</span>
+            <span class="font-mono text-xs font-semibold text-primary">15 Octobre 2025</span>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-2 flex flex-col gap-2">
+          <button
+            type="button"
+            (click)="downloadComplianceCert()"
+            class="w-full py-2 rounded-lg bg-surface-container-high text-on-surface text-body-sm font-semibold hover:bg-surface-variant transition-colors flex items-center justify-center gap-1.5"
+          >
+            <lucide-icon name="download" size="15" />
+            <span>Télécharger le Certificat de Conformité</span>
+          </button>
+          <button
+            type="button"
+            (click)="purgeCache()"
+            class="w-full py-2 rounded-lg bg-error/10 text-error text-body-sm font-semibold hover:bg-error/20 transition-colors flex items-center justify-center gap-1.5"
+          >
+            <lucide-icon name="refresh-cw" size="15" />
+            <span>Purger le cache & Recharger les clés API</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Institutional Security Badge / Micro-Card -->
+      <div class="rounded-xl bg-navy p-4 text-white shadow-sm border border-navy-line">
+        <div class="flex items-start gap-3">
+          <div class="p-2 rounded-lg bg-primary text-white shrink-0">
+            <lucide-icon name="shield-check" size="20" />
+          </div>
+          <div>
+            <div class="font-mono text-xs text-brand-teal uppercase tracking-wider font-bold">
+              Supervision SSI Finança
+            </div>
+            <div class="text-xs mt-1 text-navy-muted leading-relaxed">
+              Toutes les opérations sensibles sont journalisées conformément aux instructions 01/2021 de la Commission Bancaire de l'UMOA.
+            </div>
+            <div class="font-mono text-[10px] text-brand-teal/80 mt-2">
+              Signature Hash: 9d8b74c2e...bfa1
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,501 @@
+<div class="flex w-full flex-col gap-5">
+  <!-- Page header -->
+  <div class="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+    <div class="flex flex-col">
+      <div class="flex items-center gap-1.5">
+        <span class="text-badge font-bold uppercase tracking-wider text-primary">Pilotage financier & décision bancaire</span>
+        <span class="h-1.5 w-1.5 rounded-full bg-outline-variant"></span>
+        <span class="tabular text-label text-secondary">{{ fin.entity.framework }} · Exercice {{ fin.entity.closedYear }}</span>
+      </div>
+      <h1 class="mt-0.5 text-headline-lg font-bold">Tableau de bord</h1>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <input #fecInput type="file" accept=".fec,.csv,.txt,.xlsx" class="hidden" (change)="onFecSelected($event)" />
+      <button type="button" class="flex items-center gap-1.5 rounded-lg bg-surface-container-lowest px-3 py-2 shadow-sm transition-colors hover:bg-surface-container" (click)="openFecPicker()">
+        <lucide-icon name="upload" size="16" class="text-primary" />
+        <span class="text-body-sm font-medium">Importer FEC / Grand livre</span>
+      </button>
+      <button type="button" class="flex items-center gap-1.5 rounded-lg bg-surface-container-high px-3 py-2 shadow-sm transition-colors hover:bg-surface-container-highest" (click)="openSimulator()">
+        <lucide-icon name="sliders-horizontal" size="16" class="text-secondary" />
+        <span class="text-body-sm font-medium">Simuler emprunt</span>
+      </button>
+      <button
+        type="button"
+        class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-white shadow-sm transition-colors"
+        [class]="exportState() === 'done' ? 'bg-success' : 'bg-primary hover:bg-primary-container'"
+        [disabled]="exportState() !== 'idle'"
+        (click)="exportDossier()"
+      >
+        @switch (exportState()) {
+          @case ('running') {
+            <lucide-icon name="loader-2" size="16" class="animate-spin" />
+            <span class="text-body-sm font-semibold">Génération PDF OHADA…</span>
+          }
+          @case ('done') {
+            <lucide-icon name="check-circle-2" size="16" />
+            <span class="text-body-sm font-semibold">Dossier prêt (horodaté SHA-256)</span>
+          }
+          @default {
+            <lucide-icon name="badge-check" size="16" />
+            <span class="text-body-sm font-semibold">Générer dossier certifié</span>
+          }
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+    <div class="card flex flex-col justify-between p-5">
+      <div class="flex items-start justify-between">
+        <div class="flex flex-col">
+          <span class="text-body-sm font-medium text-secondary">Chiffre d'affaires ({{ fin.entity.closedYear }})</span>
+          <span class="tabular mt-1 text-headline-lg font-bold">{{ fin.pnl.sales | mfcfa }} <span class="font-sans text-body-sm font-normal text-secondary">FCFA</span></span>
+        </div>
+        <div class="flex items-center gap-1 rounded-full bg-success-fixed px-1.5 py-0.5 text-on-success-fixed">
+          <lucide-icon name="trending-up" size="14" />
+          <span class="tabular text-label font-bold">{{ fin.salesGrowth | num: 1 : true }} %</span>
+        </div>
+      </div>
+      <div class="mt-3 flex items-center justify-between text-secondary">
+        <span class="tabular text-label">Budget : {{ fin.salesBudget | mfcfa: 0 }} ({{ (fin.pnl.sales / fin.salesBudget) * 100 | num: 0 }} %)</span>
+        <svg class="h-6 w-24 text-primary" fill="none" viewBox="0 0 100 24" aria-hidden="true">
+          <path d="M0 20 L20 16 L40 18 L60 11 L80 13 L100 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="card flex flex-col justify-between p-5">
+      <div class="flex items-start justify-between">
+        <div class="flex flex-col">
+          <span class="text-body-sm font-medium text-secondary">Marge d'exploitation</span>
+          <span class="tabular mt-1 text-headline-lg font-bold">{{ fin.operatingMargin | num: 1 }} %</span>
+        </div>
+        <div class="flex items-center gap-1 rounded-full bg-success-fixed px-1.5 py-0.5 text-on-success-fixed">
+          <lucide-icon name="arrow-up-right" size="14" />
+          <span class="tabular text-label font-bold">{{ fin.operatingMargin - fin.operatingMarginPrior | num: 1 : true }} pt</span>
+        </div>
+      </div>
+      <div class="mt-3 flex items-center justify-between text-secondary">
+        <span class="tabular text-label">Benchmark UEMOA : {{ fin.sectorOperatingMargin | num: 1 }} %</span>
+        <div class="h-2 w-24 overflow-hidden rounded-full bg-surface-container-high">
+          <div class="h-full rounded-full bg-primary" [style.width.%]="(fin.operatingMargin / 15) * 100"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card flex flex-col justify-between p-5">
+      <div class="flex items-start justify-between">
+        <div class="flex flex-col">
+          <span class="text-body-sm font-medium text-secondary">Capacité d'autofinanc. (CAF)</span>
+          <span class="tabular mt-1 text-headline-lg font-bold">{{ fin.caf | mfcfa }} <span class="font-sans text-body-sm font-normal text-secondary">FCFA</span></span>
+        </div>
+        <div class="flex items-center gap-1 rounded-full bg-success-fixed px-1.5 py-0.5 text-on-success-fixed">
+          <lucide-icon name="trending-up" size="14" />
+          <span class="tabular text-label font-bold">{{ variation(fin.caf, fin.cafPrior) | num: 1 : true }} %</span>
+        </div>
+      </div>
+      <div class="mt-3 flex items-center justify-between text-secondary">
+        <span class="tabular text-label">CAF / CA : {{ fin.cafToSales | num: 1 }} %</span>
+        <svg class="h-6 w-24 text-primary-container" fill="none" viewBox="0 0 100 24" aria-hidden="true">
+          <path d="M0 14 L25 12 L50 15 L75 9 L100 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="card flex flex-col justify-between p-5">
+      <div class="flex items-start justify-between">
+        <div class="flex flex-col">
+          <span class="text-body-sm font-medium text-secondary">Trésorerie nette</span>
+          <span class="tabular mt-1 text-headline-lg font-bold">{{ fin.netCash | mfcfa }} <span class="font-sans text-body-sm font-normal text-secondary">FCFA</span></span>
+        </div>
+        <div class="flex items-center gap-1 rounded-full bg-success-fixed px-1.5 py-0.5 text-on-success-fixed">
+          <lucide-icon name="badge-check" size="14" />
+          <span class="tabular text-label font-bold">Solide</span>
+        </div>
+      </div>
+      <div class="mt-3 flex items-center justify-between text-secondary">
+        <span class="tabular text-label">FRNG {{ fin.frng | mfcfa: 1 : true }} · BFR {{ fin.bfr | mfcfa }}</span>
+        <span class="tabular text-label font-bold text-success">Couv. {{ fin.cashCoverageDays | num: 0 }} j</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score + Radar -->
+  <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+    <div class="card relative flex flex-col justify-between overflow-hidden p-5 lg:col-span-7">
+      <div class="bg-brand-gradient pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full opacity-10"></div>
+      <div class="flex flex-col justify-between gap-2 pb-2 sm:flex-row sm:items-center">
+        <div class="flex items-center gap-2">
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
+            <lucide-icon name="shield-check" size="22" />
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h2 class="text-headline-sm font-semibold">Finança Credit Rating™</h2>
+              <span class="rounded-full bg-success-fixed px-1.5 py-0.5 text-badge font-bold uppercase text-on-success-fixed">Validé OHADA</span>
+            </div>
+            <p class="text-body-sm text-secondary">Modèle prédictif actuariel calibré UEMOA / CEMAC</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="tabular block text-label text-secondary">Dernier recalcul</span>
+          <span class="tabular text-body-md font-semibold">{{ fin.model.lastRun }}</span>
+        </div>
+      </div>
+
+      <div class="my-3 grid grid-cols-1 items-center gap-3 sm:grid-cols-12">
+        <div class="flex flex-col items-center justify-center rounded-xl bg-surface-container-low p-3 sm:col-span-5">
+          <div class="relative flex h-36 w-36 items-center justify-center">
+            <svg class="h-full w-full -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#12d8a5" />
+                  <stop offset="55%" stop-color="#0aa2e6" />
+                  <stop offset="100%" stop-color="#0657b0" />
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="60" r="50" fill="transparent" stroke="var(--color-surface-container-high)" stroke-width="10" />
+              <circle
+                cx="60" cy="60" r="50" fill="transparent" stroke="url(#gauge-grad)" stroke-width="10" stroke-linecap="round"
+                [attr.stroke-dasharray]="gaugeCircumference"
+                [attr.stroke-dashoffset]="gaugeOffset"
+              />
+            </svg>
+            <div class="absolute flex flex-col items-center">
+              <span class="tabular text-headline-lg font-bold">{{ fin.model.score }}</span>
+              <span class="tabular text-label text-secondary">/ 1000</span>
+            </div>
+          </div>
+          <div class="mt-1 flex items-center gap-1.5">
+            <span class="bg-brand-gradient rounded-full px-2 py-0.5 text-badge font-bold uppercase text-white">Grade {{ fin.grade }}</span>
+            <span class="text-body-sm font-semibold text-success">Excellente solvabilité</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2 sm:col-span-7 sm:pl-2">
+          <div class="flex items-center justify-between rounded-lg bg-surface-container p-2.5">
+            <div class="flex flex-col">
+              <span class="text-body-sm text-secondary">Probabilité de défaut à 12 mois</span>
+              <span class="tabular text-headline-sm font-semibold">{{ fin.model.probabilityOfDefault | num: 1 }} % <span class="font-sans text-body-sm font-medium text-success">(vs {{ fin.model.sectorPd | num: 1 }} % moy. secteur)</span></span>
+            </div>
+            <lucide-icon name="shield" size="24" class="text-success" />
+          </div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-container p-2.5">
+            <div class="flex flex-col">
+              <span class="text-body-sm text-secondary">Capacité d'emprunt additionnelle</span>
+              <span class="tabular text-headline-sm font-bold text-primary">Jusqu'à {{ fin.borrowingCapacity | mfcfa }} FCFA</span>
+            </div>
+            <lucide-icon name="landmark" size="24" class="text-secondary" />
+          </div>
+          <div class="flex items-center justify-between rounded-lg bg-surface-container-low p-2.5">
+            <span class="text-body-sm text-secondary">Ratio DSCR (service de la dette)</span>
+            <span class="tabular text-body-md font-bold">{{ fin.dscr | num }}x <span class="text-xs font-normal text-success">(seuil &gt; {{ fin.model.minDscr | num }})</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <div class="mb-1 flex items-center justify-between">
+          <span class="tabular text-label uppercase tracking-wider text-secondary">Pré-qualification banques partenaires</span>
+          <span class="tabular text-label font-semibold text-primary">{{ fin.bankOffersAvailable }} offres disponibles</span>
+        </div>
+        <div class="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+          @for (bank of fin.partnerBanks; track bank.name) {
+            <div class="flex items-center justify-between rounded-lg bg-surface-container px-2.5 py-1.5">
+              <div class="flex items-center gap-1.5">
+                <div
+                  class="tabular flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-white"
+                  [class.bg-navy]="bank.tone === 'navy'"
+                  [class.bg-primary]="bank.tone === 'blue'"
+                  [class.bg-secondary]="bank.tone === 'slate'"
+                >{{ bank.code }}</div>
+                <div class="flex flex-col">
+                  <span class="text-body-sm font-semibold leading-tight">{{ bank.name }}</span>
+                  <span class="tabular text-label text-secondary">{{ bank.offer }} {{ bank.amount | mfcfa: 0 }}</span>
+                </div>
+              </div>
+              <span
+                class="rounded px-1.5 py-0.5 text-badge font-bold"
+                [class]="bank.status === 'Accord' ? 'bg-success-fixed text-on-success-fixed' : 'bg-secondary-container text-on-secondary-container'"
+              >{{ bank.status }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar des ratios -->
+    <div class="card flex flex-col justify-between p-5 lg:col-span-5">
+      <div class="flex items-center justify-between pb-2">
+        <div>
+          <h2 class="text-headline-sm font-semibold">Radar des risques & ratios</h2>
+          <p class="text-body-sm text-secondary">Conformité aux règles prudentielles OHADA</p>
+        </div>
+        <span class="rounded bg-success-fixed px-1.5 py-1 text-badge font-bold uppercase text-on-success-fixed">4 / 4 conformes</span>
+      </div>
+
+      <div class="my-auto flex flex-col gap-3">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-body-sm font-medium">Liquidité générale <span class="text-badge font-bold text-success">· norme &gt; 1,20</span></span>
+            <span class="tabular text-body-md font-bold text-success">{{ fin.currentRatio | num }}x</span>
+          </div>
+          <div class="h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
+            <div class="bg-brand-gradient h-full rounded-full" [style.width.%]="(fin.currentRatio / 2.5) * 100"></div>
+          </div>
+          <div class="tabular flex justify-between text-label text-secondary">
+            <span>Seuil critique : 1,00x</span>
+            <span>Sain ({{ fin.currentRatio - 1.2 | num: 2 : true }}x vs norme)</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-body-sm font-medium">Autonomie financière (CP / total bilan) <span class="text-badge font-bold text-success">· norme &gt; 33 %</span></span>
+            <span class="tabular text-body-md font-bold">{{ fin.autonomy | num: 1 }} %</span>
+          </div>
+          <div class="h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
+            <div class="bg-brand-gradient h-full rounded-full" [style.width.%]="fin.autonomy"></div>
+          </div>
+          <div class="tabular flex justify-between text-label text-secondary">
+            <span>Capitaux propres : {{ fin.equity | mfcfa }}</span>
+            <span>Sécurisé</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-body-sm font-medium">Couverture du BFR par le FRNG <span class="text-badge font-bold text-success">· norme &gt; 1,00</span></span>
+            <span class="tabular text-body-md font-bold text-success">{{ fin.bfrCoverage | num }}x</span>
+          </div>
+          <div class="h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
+            <div class="bg-brand-gradient h-full rounded-full" [style.width.%]="(fin.bfrCoverage / 2.5) * 100"></div>
+          </div>
+          <div class="tabular flex justify-between text-label text-secondary">
+            <span>Excédent FRNG − BFR : {{ fin.netCash | mfcfa: 1 : true }}</span>
+            <span>Risque BFR faible</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-body-sm font-medium">Dette nette / CAF <span class="text-badge font-bold text-secondary">· norme &lt; {{ fin.model.maxLeverage | num: 1 }} ans</span></span>
+            <span class="tabular text-body-md font-bold">{{ fin.leverageYears | num }} ans</span>
+          </div>
+          <div class="h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
+            <div class="bg-brand-gradient h-full rounded-full" [style.width.%]="(fin.leverageYears / fin.model.maxLeverage) * 100"></div>
+          </div>
+          <div class="tabular flex justify-between text-label text-secondary">
+            <span>Dette nette : {{ fin.netDebt | mfcfa }} FCFA</span>
+            <span>Désendettement rapide</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-2 flex items-center gap-2 rounded-lg bg-surface-container p-2.5">
+        <lucide-icon name="gavel" size="20" class="text-primary" />
+        <p class="text-body-sm leading-tight">Aucune procédure d'alerte déclenchée au sens de l'Acte uniforme OHADA (sociétés commerciales & GIE).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- P&L + Aging -->
+  <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+    <div class="card flex flex-col justify-between p-5 lg:col-span-7">
+      <div class="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+        <div class="flex items-center gap-1.5">
+          <lucide-icon name="receipt" size="18" class="text-primary" />
+          <div>
+            <h3 class="text-headline-sm font-semibold">Compte de résultat synthétique</h3>
+            <span class="tabular text-label text-secondary">Nomenclature SYSCOHADA (soldes significatifs)</span>
+          </div>
+        </div>
+        <div class="flex items-center rounded-lg bg-surface-container-low p-1" role="tablist">
+          <button
+            type="button" role="tab" class="rounded px-2 py-1 text-body-sm transition-colors"
+            [attr.aria-selected]="period() === 'month'"
+            [class]="period() === 'month' ? 'bg-surface-container-lowest font-semibold text-primary shadow-sm' : 'font-medium text-secondary hover:text-on-surface'"
+            (click)="period.set('month')"
+          >Mensuel ({{ fin.entity.openPeriodShort }} {{ fin.entity.openYear }})</button>
+          <button
+            type="button" role="tab" class="rounded px-2 py-1 text-body-sm transition-colors"
+            [attr.aria-selected]="period() === 'year'"
+            [class]="period() === 'year' ? 'bg-surface-container-lowest font-semibold text-primary shadow-sm' : 'font-medium text-secondary hover:text-on-surface'"
+            (click)="period.set('year')"
+          >Annuel ({{ fin.entity.closedYear }})</button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="tabular bg-surface-container text-label uppercase text-secondary">
+              <th class="rounded-l-lg px-3 py-2.5 font-medium">Poste SYSCOHADA</th>
+              <th class="px-3 py-2.5 text-right font-medium">{{ pnlColumns().currentLabel }}</th>
+              <th class="px-3 py-2.5 text-right font-medium">{{ pnlColumns().priorLabel }}</th>
+              <th class="rounded-r-lg px-3 py-2.5 text-right font-medium">Variation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-container-low text-body-sm">
+            @for (row of pnlRows; track row.key) {
+              @let cur = pnlColumns().current[row.key];
+              @let prev = pnlColumns().prior[row.key];
+              @let v = variation(cur, prev);
+              <tr
+                class="transition-colors"
+                [class]="row.kind === 'result' ? 'bg-primary/5 hover:bg-primary/10' : row.kind === 'subtotal' ? 'bg-surface-container-low/60 hover:bg-surface-container' : 'hover:bg-surface-container-low'"
+              >
+                <td class="px-3 py-2.5" [class.font-bold]="row.kind !== 'line'" [class.font-medium]="row.kind === 'line'">
+                  <span class="flex items-center gap-2">
+                    @if (row.dot) { <span class="h-2 w-2 rounded-full" [class]="row.dot"></span> }
+                    {{ row.label }}
+                  </span>
+                </td>
+                <td class="tabular px-3 py-2.5 text-right" [class]="row.kind === 'result' ? 'font-bold text-primary text-body-md' : 'font-semibold'">{{ cur | fcfa }}</td>
+                <td class="tabular px-3 py-2.5 text-right text-secondary">{{ prev | fcfa }}</td>
+                <td class="tabular px-3 py-2.5 text-right font-bold" [class]="cur >= 0 ? (v >= 0 ? 'text-success' : 'text-error') : 'text-secondary'">{{ v | num: 1 : true }} %</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="tabular mt-3 flex items-center justify-between pt-2 text-label text-secondary">
+        <span>Montants en francs CFA (XOF)</span>
+        <a routerLink="/etats-financiers" class="flex items-center gap-1 font-semibold text-primary hover:underline">
+          <span>Voir les états financiers</span>
+          <lucide-icon name="arrow-right" size="14" />
+        </a>
+      </div>
+    </div>
+
+    <div class="card flex flex-col justify-between p-5 lg:col-span-5">
+      <div>
+        <div class="mb-3 flex items-center gap-1.5">
+          <lucide-icon name="clock" size="18" class="text-primary" />
+          <div>
+            <h3 class="text-headline-sm font-semibold">Balance âgée créances & dettes</h3>
+            <span class="tabular text-label text-secondary">Clients (411) vs fournisseurs (401) · {{ fin.entity.openPeriodShort }} {{ fin.entity.openYear }}</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="rounded-lg bg-surface-container-low p-2.5">
+            <div class="mb-1 flex items-center justify-between">
+              <span class="text-body-sm font-semibold">Créances clients (411)</span>
+              <span class="tabular text-body-md font-bold">{{ fin.receivablesTotal | mfcfa }} FCFA</span>
+            </div>
+            <div class="flex h-3 w-full gap-0.5 overflow-hidden rounded-full bg-surface-container">
+              @for (b of fin.receivablesAging; track b.label) {
+                <div class="h-full" [class]="agingTone[b.tone]" [style.width.%]="pct(b.amount, fin.receivablesTotal)" [title]="b.label"></div>
+              }
+            </div>
+            <div class="mt-2 grid grid-cols-4 gap-1 text-center">
+              @for (b of fin.receivablesAging; track b.label) {
+                <div>
+                  <span class="tabular block text-label" [class]="b.tone === 'critical' ? 'text-error' : 'text-secondary'">{{ b.label }}</span>
+                  <span class="tabular text-body-md font-semibold" [class.text-error]="b.tone === 'critical'" [class.text-primary]="b.tone === 'ok'">{{ b.amount | mfcfa }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="rounded-lg bg-surface-container-low p-2.5">
+            <div class="mb-1 flex items-center justify-between">
+              <span class="text-body-sm font-semibold">Dettes fournisseurs (401)</span>
+              <span class="tabular text-body-md font-bold">{{ fin.payablesTotal | mfcfa }} FCFA</span>
+            </div>
+            <div class="flex h-3 w-full gap-0.5 overflow-hidden rounded-full bg-surface-container">
+              @for (b of fin.payablesAging; track b.label) {
+                <div class="h-full" [class]="payablesTone[b.tone]" [style.width.%]="pct(b.amount, fin.payablesTotal)" [title]="b.label"></div>
+              }
+            </div>
+            <div class="tabular mt-2 flex items-center justify-between text-label text-secondary">
+              <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-secondary"></span>Normal : {{ fin.payablesAging[0].amount | mfcfa }}</span>
+              <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-secondary-container"></span>&lt; 15j : {{ fin.payablesAging[1].amount | mfcfa }}</span>
+              <span class="flex items-center gap-1.5 font-semibold text-error"><span class="h-2 w-2 rounded-full bg-error"></span>Retards : {{ fin.payablesAging[2].amount | mfcfa }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-2 pt-2">
+        <div class="flex flex-col rounded-lg bg-surface-container p-2.5">
+          <span class="tabular text-label uppercase text-secondary">DSO (délai client)</span>
+          <span class="tabular mt-0.5 text-headline-sm font-bold text-primary">{{ fin.dso | num: 0 }} jours</span>
+          <span class="tabular text-label text-secondary">vs 60 j max contractuel</span>
+        </div>
+        <div class="flex flex-col rounded-lg bg-surface-container p-2.5">
+          <span class="tabular text-label uppercase text-secondary">DPO (délai fournisseur)</span>
+          <span class="tabular mt-0.5 text-headline-sm font-bold">{{ fin.dpo | num: 0 }} jours</span>
+          <span class="tabular text-label text-success">Écart favorable ({{ fin.dpo - fin.dso | num: 0 : true }} j)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loan simulator -->
+<dialog #simDialog class="m-auto w-full max-w-lg rounded-xl bg-surface-container-lowest p-5 text-on-surface shadow-xl" aria-labelledby="sim-title">
+  <div class="flex items-center justify-between pb-2">
+    <div class="flex items-center gap-1.5">
+      <lucide-icon name="calculator" size="20" class="text-primary" />
+      <h3 id="sim-title" class="text-headline-sm font-semibold">Simulateur d'emprunt</h3>
+    </div>
+    <button type="button" class="rounded-lg p-1 text-secondary hover:text-on-surface" aria-label="Fermer" (click)="closeSimulator()">
+      <lucide-icon name="x" size="18" />
+    </button>
+  </div>
+
+  <div class="my-3 flex flex-col gap-3">
+    <div>
+      <label for="loan-amount" class="mb-1 block text-body-sm font-medium text-secondary">Montant demandé (FCFA)</label>
+      <div class="flex items-center rounded-lg bg-surface-container-low px-3 py-2 focus-within:ring-1 focus-within:ring-primary">
+        <input id="loan-amount" type="number" step="5000000" min="0" class="tabular w-full bg-transparent font-bold focus:outline-none" [value]="loanAmount()" (input)="onAmountInput($event)" />
+        <span class="tabular text-label font-semibold text-secondary">FCFA</span>
+      </div>
+      <span class="tabular mt-1 block text-label" [class]="loan().withinCapacity ? 'text-primary' : 'text-error'">
+        Capacité additionnelle éligible : {{ fin.borrowingCapacity | fcfa }} FCFA
+      </span>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label for="loan-months" class="mb-1 block text-body-sm font-medium text-secondary">Durée</label>
+        <select id="loan-months" class="tabular w-full rounded-lg bg-surface-container-low px-3 py-2 font-medium focus:outline-none" (change)="onMonthsChange($event)">
+          @for (d of durations; track d) {
+            <option [value]="d" [selected]="d === loanMonths()">{{ d }} mois</option>
+          }
+        </select>
+      </div>
+      <div>
+        <span class="mb-1 block text-body-sm font-medium text-secondary">Taux pré-négocié</span>
+        <div class="flex items-center justify-between rounded-lg bg-surface-container-low px-3 py-2">
+          <span class="tabular font-bold">{{ fin.model.preNegotiatedRate * 100 | num }} %</span>
+          <span class="rounded bg-success-fixed px-1 text-badge font-bold text-on-success-fixed">Grade {{ fin.grade }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1 rounded-lg bg-surface-container p-2.5">
+      <div class="flex items-center justify-between">
+        <span class="text-body-sm text-secondary">Mensualité estimée</span>
+        <span class="tabular text-headline-sm font-bold text-primary">{{ loan().monthlyPayment | fcfa }} FCFA</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="tabular text-label text-secondary">DSCR prévisionnel</span>
+        <span class="tabular text-label font-semibold" [class]="loan().dscrOk ? 'text-success' : 'text-error'">
+          {{ loan().projectedDscr | num }}x ({{ loan().dscrOk ? 'seuil respecté' : 'sous le seuil' }} {{ fin.model.minDscr | num }})
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end gap-1.5 pt-2">
+    <button type="button" class="rounded-lg bg-surface-container-high px-3 py-2 text-body-sm font-medium hover:bg-surface-container-highest" (click)="closeSimulator()">Annuler</button>
+    <button
+      type="button"
+      class="rounded-lg bg-primary px-3 py-2 text-body-sm font-semibold text-white hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-50"
+      [disabled]="!loan().dscrOk || !loan().withinCapacity"
+      (click)="submitLoan()"
+    >Transmettre aux {{ fin.bankOffersAvailable }} banques partenaires</button>
+  </div>
+</dialog>

@@ -1,3 +1,131 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/*
+ * Finança design tokens.
+ * Palette derived from the logo: teal (#12d8a5) → blue (#0aa2e6) → deep blue (#0657b0) on navy.
+ * Token names follow the original mockups (Material-style) so markup stays readable.
+ */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Brand */
+  --color-navy: #181f35;
+  --color-navy-raised: #212a45;
+  --color-navy-line: #2c3758;
+  --color-navy-muted: #8e9bbd;
+  --color-brand-teal: #12d8a5;
+  --color-brand-blue: #0aa2e6;
+  --color-brand-deep: #0657b0;
+
+  /* Primary = brand blue (actions, links, brand emphasis) */
+  --color-primary: #0864c0;
+  --color-primary-container: #0a8fdc;
+  --color-on-primary: #ffffff;
+  --color-primary-fixed: #d6ecff;
+  --color-on-primary-fixed: #002a52;
+
+  /* Success = brand teal (healthy ratios, validated states) */
+  --color-success: #077a62;
+  --color-success-container: #12c79b;
+  --color-success-fixed: #c9f5e8;
+  --color-on-success-fixed: #00382c;
+
+  /* Neutrals */
+  --color-secondary: #545f73;
+  --color-secondary-container: #d5e0f8;
+  --color-on-secondary-container: #3c475a;
+  --color-background: #f6f8fc;
+  --color-surface: #f6f8fc;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eff3fb;
+  --color-surface-container: #e6edf9;
+  --color-surface-container-high: #dce5f5;
+  --color-surface-container-highest: #d0dbef;
+  --color-on-surface: #0d1a2e;
+  --color-on-surface-variant: #3f4a5c;
+  --color-outline-variant: #c3cbdb;
+
+  /* Status */
+  --color-warning: #a35200;
+  --color-warning-container: #ffe7c7;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+
+  /* Typography scale (from mockups) */
+  --text-display: 2.25rem;
+  --text-display--line-height: 2.75rem;
+  --text-display--letter-spacing: -0.025em;
+  --text-headline-lg: 1.75rem;
+  --text-headline-lg--line-height: 2.25rem;
+  --text-headline-lg--letter-spacing: -0.02em;
+  --text-headline-md: 1.375rem;
+  --text-headline-md--line-height: 1.75rem;
+  --text-headline-md--letter-spacing: -0.015em;
+  --text-headline-sm: 1.125rem;
+  --text-headline-sm--line-height: 1.5rem;
+  --text-headline-sm--letter-spacing: -0.01em;
+  --text-body-md: 0.875rem;
+  --text-body-md--line-height: 1.375rem;
+  --text-body-sm: 0.75rem;
+  --text-body-sm--line-height: 1.125rem;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1rem;
+  --text-badge: 0.6875rem;
+  --text-badge--line-height: 0.875rem;
+  --text-badge--letter-spacing: 0.04em;
+}
+
+@utility bg-brand-gradient {
+  background-image: linear-gradient(135deg, #12d8a5 0%, #0aa2e6 55%, #0657b0 100%);
+}
+
+@utility text-brand-gradient {
+  background-image: linear-gradient(120deg, #12d8a5 0%, #0aa2e6 60%, #0657b0 100%);
+  background-clip: text;
+  color: transparent;
+}
+
+@utility card {
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface-container-lowest);
+  box-shadow: 0 1px 2px rgb(13 26 46 / 0.06), 0 1px 8px rgb(13 26 46 / 0.03);
+}
+
+@utility tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    overscroll-behavior: none;
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    font-family: var(--font-sans);
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  
+
+  dialog::backdrop {
+    background: rgb(13 26 46 / 0.45);
+    backdrop-filter: blur(2px);
+  }
+}
