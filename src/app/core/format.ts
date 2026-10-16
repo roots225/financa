@@ -54,3 +54,5 @@ export class ShortDatePipe implements PipeTransform {
 }
 
 export const FORMAT_PIPES = [FcfaPipe, MillionsPipe, NumPipe, ShortDatePipe] as const;
+
+export { AmountInputComponent } from './amount-input.component';

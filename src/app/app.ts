@@ -15,7 +15,13 @@ interface NavItem {
 }
 
 @Component({
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideIconComponent, ConfirmDialogComponent],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    LucideIconComponent,
+    ConfirmDialogComponent,
+  ],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
@@ -37,7 +43,7 @@ export class App {
   readonly userMenuOpen = signal(false);
 
   protected readonly nav: NavItem[] = [
-    { path: '/dashboard', label: 'Dashboard & Score', icon: 'line-chart' },
+    { path: '/dashboard', label: 'Tableau de bord', icon: 'line-chart' },
     { path: '/tenue-comptable', label: 'Tenue comptable', icon: 'book-open' },
     { path: '/etats-financiers', label: 'États & Bilan (OHADA)', icon: 'landmark' },
     { path: '/liasse-fiscale', label: 'Liasse Fiscale & DGI', icon: 'file-text' },
@@ -104,7 +110,8 @@ export class App {
     const confirmed = await this.confirmDialog.confirm({
       title: 'Déconnexion institutionnelle',
       message: 'Êtes-vous certain de vouloir vous déconnecter de la plateforme Finança ?',
-      description: 'Vos jetons d’authentification eIDAS et clés de session de chiffrement seront immédiatement révoqués.',
+      description:
+        'Vos jetons d’authentification eIDAS et clés de session de chiffrement seront immédiatement révoqués.',
       tone: 'danger',
       confirmText: 'Se déconnecter',
       cancelText: 'Rester connecté',

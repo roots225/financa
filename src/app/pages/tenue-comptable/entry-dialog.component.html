@@ -1,0 +1,369 @@
+<dialog
+  #dialogRef
+  class="m-auto w-full max-w-2xl rounded-2xl bg-surface-container-lowest p-6 text-on-surface shadow-2xl backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm border border-slate-100"
+  aria-labelledby="manual-entry-title"
+  (click)="onBackdropClick($event)"
+>
+  <div class="flex flex-col gap-4">
+    <!-- Header -->
+    <div class="flex items-start justify-between pb-3 border-b border-surface-container">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold shadow-sm">
+          <lucide-icon name="sparkles" size="20" />
+        </div>
+        <div>
+          <h3 id="manual-entry-title" class="text-headline-sm font-bold text-on-surface">
+            Nouvelle écriture
+          </h3>
+          <p class="text-xs text-secondary">
+            Imputation intelligente avec extraction automatique de facture & comptes SYSCOHADA
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="rounded-lg p-1.5 text-secondary hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
+        aria-label="Fermer"
+        (click)="close()"
+      >
+        <lucide-icon name="x" size="18" />
+      </button>
+    </div>
+
+    <!-- Form Content -->
+    <div class="flex flex-col gap-4">
+      <!-- 1. FACTURE PHYSIQUE OU PIÈCE JUSTIFICATIVE EN PREMIER -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold uppercase tracking-wider text-secondary flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <lucide-icon name="cloud-upload" size="14" class="text-primary" />
+            <span>Facture physique ou Pièce justificative</span>
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+            <lucide-icon name="sparkles" size="10" />
+            Extraction auto (Montant, Libellé, Date)
+          </span>
+        </label>
+
+        <!-- Hidden input for file picker -->
+        <input
+          #fileInput
+          type="file"
+          accept=".pdf,.png,.jpg,.jpeg"
+          class="hidden"
+          (click)="$event.stopPropagation()"
+          (change)="onFileSelected($event)"
+        />
+
+        @if (!attachedFile()) {
+          <!-- Drag & Drop Zone -->
+          <div
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            (click)="triggerFilePicker($event)"
+            class="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center cursor-pointer transition-all"
+            [class.border-primary]="isDragging()"
+            [class.bg-primary/5]="isDragging()"
+            [class.border-surface-container-high]="!isDragging()"
+            [class.bg-surface-container-low]="!isDragging()"
+            [class.hover:border-primary/60]="!isDragging()"
+            [class.hover:bg-surface-container]="!isDragging()"
+          >
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-primary mb-1.5 shadow-sm border border-slate-100">
+              <lucide-icon name="cloud-upload" size="20" />
+            </div>
+            <p class="text-xs font-semibold text-on-surface">
+              Glissez-déposez la facture physique ici ou <span class="text-primary underline font-bold">parcourez vos fichiers</span>
+            </p>
+            <p class="text-[11px] text-secondary mt-0.5">
+              Formats acceptés : PDF, JPG, PNG (max 15 Mo) · Traitement OCR & pré-remplissage immédiat
+            </p>
+          </div>
+        } @else if (isAnalyzingFile()) {
+          <!-- Scanning / API Processing Simulation View -->
+          <div class="flex flex-col gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3.5 animate-pulse">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
+                  <lucide-icon name="loader-2" size="16" class="animate-spin" />
+                </div>
+                <div class="truncate">
+                  <p class="text-xs font-bold text-on-surface truncate">
+                    {{ attachedFile()?.name }} ({{ attachedFile()?.size }})
+                  </p>
+                  <p class="text-[11px] font-semibold text-primary">
+                    {{ processingStep() }}
+                  </p>
+                </div>
+              </div>
+              <span class="rounded bg-white px-2 py-0.5 text-[11px] font-mono font-bold text-primary shadow-xs border border-primary/20">
+                {{ processingProgress() }}%
+              </span>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
+              <div
+                class="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+                [style.width.%]="processingProgress()"
+              ></div>
+            </div>
+          </div>
+        } @else {
+          <!-- Attached File Card & Extraction Banner -->
+          <div class="flex flex-col gap-2">
+            <!-- File header pill -->
+            <div class="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
+                  <lucide-icon name="file-check" size="16" />
+                </div>
+                <div class="truncate">
+                  <p class="text-xs font-bold text-on-surface truncate">
+                    {{ attachedFile()?.name }}
+                  </p>
+                  <div class="flex items-center gap-1.5 text-[11px] text-secondary">
+                    <span>{{ attachedFile()?.size }}</span>
+                    <span>·</span>
+                    <span class="text-emerald-700 font-semibold flex items-center gap-1">
+                      <lucide-icon name="check-circle-2" size="12" />
+                      Numérisé & extrait avec succès
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1">
+                <button
+                  type="button"
+                  (click)="triggerFilePicker($event)"
+                  class="rounded-lg p-1.5 text-secondary hover:bg-surface-container hover:text-on-surface text-xs font-medium cursor-pointer"
+                  title="Remplacer le fichier"
+                >
+                  Remplacer
+                </button>
+                <button
+                  type="button"
+                  (click)="removeAttachedFile($event)"
+                  class="rounded-lg p-1.5 text-secondary hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                  title="Retirer la facture"
+                >
+                  <lucide-icon name="trash-2" size="16" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Extraction summary card -->
+            @if (extractedFromInvoice() && extractedInvoiceData()) {
+              <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 text-xs flex flex-col gap-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-emerald-900 flex items-center gap-1 text-[11px] uppercase tracking-wider">
+                    <lucide-icon name="sparkles" size="12" class="text-emerald-700" />
+                    Champs pré-remplis automatiquement par retour API
+                  </span>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5">
+                    Réf. {{ extractedInvoiceData()?.invoiceRef }}
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
+                  <div class="bg-white/80 rounded-lg p-1.5 border border-emerald-100">
+                    <span class="text-[10px] text-slate-500 font-semibold uppercase">Tiers reconnu</span>
+                    <p class="font-bold text-slate-900 truncate">{{ extractedInvoiceData()?.vendor }}</p>
+                  </div>
+                  <div class="bg-white/80 rounded-lg p-1.5 border border-emerald-100">
+                    <span class="text-[10px] text-slate-500 font-semibold uppercase">Montant Net détecté</span>
+                    <p class="font-bold text-primary font-mono">{{ extractedInvoiceData()?.detectedAmount | number:'1.0-0' }} FCFA</p>
+                  </div>
+                  <div class="bg-white/80 rounded-lg p-1.5 border border-emerald-100">
+                    <span class="text-[10px] text-slate-500 font-semibold uppercase">Date facture</span>
+                    <p class="font-bold text-slate-900 font-mono">{{ extractedInvoiceData()?.detectedDate }}</p>
+                  </div>
+                </div>
+
+                <p class="text-[11px] text-emerald-800 italic mt-0.5">
+                  Toutes les informations restent modifiables dans les champs ci-dessous avant enregistrement.
+                </p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- 2. CHAMP LIBELLÉ avec autocomplétion intelligente -->
+      <div class="relative flex flex-col gap-1" id="autocomplete-container">
+        <label class="text-xs font-bold uppercase tracking-wider text-secondary flex items-center justify-between" for="entry-label">
+          <span class="flex items-center gap-1.5">
+            <span>Libellé de l'opération ou Tiers</span>
+            @if (extractedFromInvoice()) {
+              <span class="inline-flex items-center gap-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">
+                <lucide-icon name="sparkles" size="10" />
+                Extrait facture
+              </span>
+            }
+          </span>
+          <span class="text-[11px] font-normal text-primary flex items-center gap-1">
+            <lucide-icon name="search" size="12" />
+            Recherche avec autocomplétion
+          </span>
+        </label>
+
+        <div class="relative flex items-center">
+          <input
+            id="entry-label"
+            type="text"
+            autocomplete="off"
+            placeholder="Ex: Fournisseur IvoirePack, Facture CIE, Règlement SODECI..."
+            [ngModel]="newEntryLabel()"
+            (ngModelChange)="onLabelInput($event)"
+            (focus)="autocompleteOpen.set(true)"
+            class="h-10 w-full rounded-xl bg-surface-container-low pl-3 pr-8 text-body-sm text-on-surface placeholder:text-secondary focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/40 shadow-sm transition-all"
+          />
+          @if (newEntryLabel()) {
+            <button
+              type="button"
+              (click)="newEntryLabel.set(''); autocompleteOpen.set(false)"
+              class="absolute right-2.5 text-secondary hover:text-on-surface p-0.5 rounded cursor-pointer"
+              title="Effacer"
+            >
+              <lucide-icon name="x" size="14" />
+            </button>
+          }
+        </div>
+
+        <!-- Dropdown d'autocomplétion -->
+        @if (autocompleteOpen() && filteredSuggestions().length > 0) {
+          <div
+            class="absolute left-0 right-0 top-full mt-1.5 z-50 max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl animate-in fade-in-50 duration-150"
+          >
+            <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Suggestions d'écritures fréquentes SYSCOHADA
+            </div>
+            @for (item of filteredSuggestions(); track item.label) {
+              <button
+                type="button"
+                (click)="selectSuggestion(item)"
+                class="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-colors hover:bg-slate-100 cursor-pointer group"
+              >
+                <div class="flex flex-col min-w-0">
+                  <span class="font-semibold text-slate-900 group-hover:text-primary truncate">
+                    {{ item.label }}
+                  </span>
+                  <span class="text-[10px] text-slate-500">
+                    {{ item.category }} · Débit {{ item.debit.code }} / Crédit {{ item.credit.code }}
+                  </span>
+                </div>
+                <span class="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-600 group-hover:bg-primary/10 group-hover:text-primary shrink-0">
+                  {{ item.journal }}
+                </span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- 3. Montant Net & Date Valeur -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+        <div class="relative">
+          <app-amount-input
+            [(value)]="newEntryAmount"
+            label="Montant Net (FCFA)"
+            id="entry-amount"
+            placeholder="0"
+            currency="FCFA"
+            [required]="true"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold uppercase tracking-wider text-secondary flex items-center justify-between" for="entry-date">
+            <span>Date Valeur</span>
+            @if (extractedFromInvoice()) {
+              <span class="inline-flex items-center gap-1 rounded bg-emerald-100 px-1.5 py-0.2 text-[10px] font-bold text-emerald-800">
+                <lucide-icon name="sparkles" size="10" />
+                Date facture
+              </span>
+            }
+          </label>
+          <input
+            id="entry-date"
+            type="date"
+            [ngModel]="newEntryDate()"
+            (ngModelChange)="newEntryDate.set($event)"
+            class="h-10 w-full rounded-xl bg-surface-container-low px-3 text-body-sm text-on-surface focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/40 shadow-sm transition-all"
+          />
+        </div>
+      </div>
+
+      <!-- 4. Détection Automatique des Comptes (remplace les champs manuels Journal, Débit, Crédit) -->
+      <div class="rounded-xl border border-teal-100 bg-teal-50/40 p-3.5 flex flex-col gap-2">
+        <div class="flex items-center justify-between pb-1.5 border-b border-teal-100/60">
+          <div class="flex items-center gap-1.5 text-primary">
+            <lucide-icon name="brain" size="15" />
+            <span class="text-xs font-bold uppercase tracking-wider">
+              Détection Automatique SYSCOHADA
+            </span>
+          </div>
+          <span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-primary shadow-xs border border-teal-100">
+            <span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+            Confiance {{ detectedAccountInfo().confidence }}%
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs">
+          <!-- Journal -->
+          <div class="flex flex-col bg-white rounded-lg p-2 border border-teal-100/70 shadow-2xs">
+            <span class="text-[10px] font-bold uppercase text-secondary">Journal Automatique</span>
+            <span class="font-bold text-slate-900 mt-0.5 font-mono">
+              {{ detectedAccountInfo().journalLabel }}
+            </span>
+          </div>
+
+          <!-- Compte Débit -->
+          <div class="flex flex-col bg-white rounded-lg p-2 border border-teal-100/70 shadow-2xs">
+            <span class="text-[10px] font-bold uppercase text-secondary">Compte Débit (Emploi)</span>
+            <div class="flex items-baseline gap-1 mt-0.5">
+              <span class="font-bold text-primary font-mono">{{ detectedAccountInfo().debit.code }}</span>
+              <span class="text-[11px] text-slate-600 truncate">{{ detectedAccountInfo().debit.label }}</span>
+            </div>
+          </div>
+
+          <!-- Compte Crédit -->
+          <div class="flex flex-col bg-white rounded-lg p-2 border border-teal-100/70 shadow-2xs">
+            <span class="text-[10px] font-bold uppercase text-secondary">Compte Crédit (Ressource)</span>
+            <div class="flex items-baseline gap-1 mt-0.5">
+              <span class="font-bold text-primary font-mono">{{ detectedAccountInfo().credit.code }}</span>
+              <span class="text-[11px] text-slate-600 truncate">{{ detectedAccountInfo().credit.label }}</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-500 italic mt-0.5 flex items-center gap-1">
+          <lucide-icon name="info" size="12" class="text-primary shrink-0" />
+          <span>{{ detectedAccountInfo().explanation }}</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-2 pt-3 border-t border-surface-container">
+      <button
+        type="button"
+        class="h-9.5 rounded-xl bg-surface-container px-4 text-xs font-semibold text-secondary hover:bg-surface-container-high transition-colors cursor-pointer"
+        (click)="close()"
+      >
+        Annuler
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 h-9.5 rounded-xl bg-primary px-4 text-xs font-bold text-white shadow-sm hover:bg-primary-container transition-all cursor-pointer"
+        (click)="submit()"
+      >
+        <lucide-icon name="check" size="15" />
+        <span>Valider & Enregistrer</span>
+      </button>
+    </div>
+  </div>
+</dialog>

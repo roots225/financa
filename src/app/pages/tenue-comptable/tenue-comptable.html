@@ -12,7 +12,7 @@
     <div class="flex flex-col justify-between gap-3 lg:flex-row lg:items-center mt-1">
       <div class="flex flex-col">
         <div class="flex flex-wrap items-center gap-2">
-          <h1 class="text-headline-lg font-bold tracking-tight">Tenue Comptable & Rapprochement Bancaire</h1>
+          <h1 class="text-headline-lg font-bold tracking-tight">Tenue Comptable</h1>
           <span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-badge font-bold uppercase text-primary tracking-wider">
             <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
             {{ fin.entity.framework }}
@@ -31,16 +31,6 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <input #bankFileInput type="file" accept=".ofx,.mt940,.csv,.txt" class="hidden" (change)="onBankFileSelected($event)" />
-        <button
-          type="button"
-          class="flex items-center gap-1.5 rounded-lg bg-surface-container-lowest px-3 py-2 text-body-sm font-semibold shadow-sm transition-colors hover:bg-surface-container text-on-surface"
-          (click)="openBankFilePicker()"
-        >
-          <lucide-icon name="upload" size="16" class="text-primary" />
-          <span>Importer Relevé (OFX / MT940)</span>
-        </button>
-
         <button
           type="button"
           class="flex items-center gap-1.5 rounded-lg bg-surface-container-high px-3 py-2 text-body-sm font-semibold shadow-sm transition-colors hover:bg-surface-container-highest text-on-surface"
@@ -56,7 +46,7 @@
           (click)="openEntryModal()"
         >
           <lucide-icon name="plus" size="16" />
-          <span>Nouvelle Écriture</span>
+          <span>Nouvelle écriture</span>
         </button>
       </div>
     </div>
@@ -550,67 +540,6 @@
   </section>
 </div>
 
-<!-- Modal Écriture Manuelle Rapide -->
-<dialog #entryDialog class="m-auto w-full max-w-lg rounded-xl bg-surface-container-lowest p-5 text-on-surface shadow-xl" aria-labelledby="manual-entry-title">
-  <div class="flex flex-col gap-3">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <div class="flex h-8 w-8 items-center justify-center rounded bg-primary/10 text-primary font-bold">
-          <lucide-icon name="list-plus" size="18" />
-        </div>
-        <h4 id="manual-entry-title" class="text-headline-sm font-bold text-on-surface">Saisie Écriture Comptable</h4>
-      </div>
-      <button type="button" class="rounded-lg p-1 text-secondary hover:text-on-surface" aria-label="Fermer" (click)="closeEntryModal()">
-        <lucide-icon name="x" size="18" />
-      </button>
-    </div>
+<!-- Modal Écriture Manuelle Rapide (Composant extrait) -->
+<app-entry-dialog #entryDialog />
 
-    <div class="grid grid-cols-2 gap-2">
-      <div class="flex flex-col gap-1">
-        <label class="text-badge font-bold uppercase text-secondary" for="entry-jnl">Journal</label>
-        <select id="entry-jnl" class="h-9 rounded-lg bg-surface-container-low px-2 text-body-sm text-on-surface" [(ngModel)]="newEntryJournal">
-          <option value="BQ">BQ - Banque Ecobank</option>
-          <option value="VT">VT - Ventes</option>
-          <option value="AC">AC - Achats</option>
-          <option value="CA">CA - Caisse</option>
-          <option value="OD">OD - Opérations Diverses</option>
-        </select>
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-badge font-bold uppercase text-secondary" for="entry-date">Date Valeur</label>
-        <input id="entry-date" type="date" class="h-9 rounded-lg bg-surface-container-low px-2 text-body-sm text-on-surface" [(ngModel)]="newEntryDate" />
-      </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-2">
-      <div class="flex flex-col gap-1">
-        <label class="text-badge font-bold uppercase text-secondary" for="entry-debit">Compte Débit (ex: 601100)</label>
-        <input id="entry-debit" type="text" class="h-9 rounded-lg bg-surface-container-low px-3 text-body-sm text-on-surface" placeholder="Compte Débit" [(ngModel)]="newEntryDebitAccount" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-badge font-bold uppercase text-secondary" for="entry-credit">Compte Crédit (ex: 521100)</label>
-        <input id="entry-credit" type="text" class="h-9 rounded-lg bg-surface-container-low px-3 text-body-sm text-on-surface" placeholder="Compte Crédit" [(ngModel)]="newEntryCreditAccount" />
-      </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-2">
-      <div class="flex flex-col gap-1">
-        <label class="text-badge font-bold uppercase text-secondary" for="entry-amount">Montant Net (FCFA)</label>
-        <input id="entry-amount" type="number" min="0" class="h-9 rounded-lg bg-surface-container-low px-3 text-body-sm text-on-surface" placeholder="Montant" [(ngModel)]="newEntryAmount" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-badge font-bold uppercase text-secondary" for="entry-label">Libellé de la pièce</label>
-        <input id="entry-label" type="text" class="h-9 rounded-lg bg-surface-container-low px-3 text-body-sm text-on-surface" placeholder="Ex: Réglt Fournisseur..." [(ngModel)]="newEntryLabel" />
-      </div>
-    </div>
-
-    <div class="flex items-center justify-end gap-2 pt-2 border-t border-surface-container">
-      <button type="button" class="h-9 rounded-lg bg-surface-container px-3 text-body-sm font-semibold text-secondary hover:bg-surface-container-high" (click)="closeEntryModal()">
-        Annuler
-      </button>
-      <button type="button" class="h-9 rounded-lg bg-primary px-3 text-body-sm font-semibold text-white hover:bg-primary-container" (click)="submitNewEntry()">
-        Valider & Équilibrer
-      </button>
-    </div>
-  </div>
-</dialog>

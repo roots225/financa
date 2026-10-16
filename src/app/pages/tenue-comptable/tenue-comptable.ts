@@ -4,11 +4,12 @@ import { FinanceService } from '../../core/finance.service';
 import { FORMAT_PIPES } from '../../core/format';
 import { ToastService } from '../../core/toast.service';
 import { LucideIconComponent } from '../../core/lucide-icon.component';
-import { JournalCode, JournalLine } from '../../core/finance-data';
+import { JournalCode } from '../../core/finance-data';
+import { EntryDialogComponent } from './entry-dialog.component';
 
 @Component({
   selector: 'app-tenue-comptable',
-  imports: [FormsModule, LucideIconComponent, ...FORMAT_PIPES],
+  imports: [FormsModule, LucideIconComponent, EntryDialogComponent, ...FORMAT_PIPES],
   templateUrl: './tenue-comptable.html',
 })
 export class TenueComptablePage {
@@ -24,7 +25,7 @@ export class TenueComptablePage {
   // Compte bancaire sélectionné pour le rapprochement
   protected readonly selectedBankAccount = signal('521100');
   protected readonly bankReconciliation = computed(() =>
-    this.fin.reconciliation(this.selectedBankAccount())
+    this.fin.reconciliation(this.selectedBankAccount()),
   );
 
   // Journal filtré
@@ -36,8 +37,14 @@ export class TenueComptablePage {
 
     return list.filter((item) => {
       if (jnl !== 'ALL' && item.journal !== jnl) return false;
-      if (status === 'MATCHED' && !item.status.includes('Rapproché') && !item.status.includes('Lettré')) return false;
-      if (status === 'PENDING' && (item.status === 'Rapproché' || item.status === 'Lettré')) return false;
+      if (
+        status === 'MATCHED' &&
+        !item.status.includes('Rapproché') &&
+        !item.status.includes('Lettré')
+      )
+        return false;
+      if (status === 'PENDING' && (item.status === 'Rapproché' || item.status === 'Lettré'))
+        return false;
       if (query) {
         const matchesQuery =
           item.account.toLowerCase().includes(query) ||
@@ -52,68 +59,10 @@ export class TenueComptablePage {
   });
 
   // Modal Saisie Manuelle
-  private readonly entryDialog = viewChild.required<ElementRef<HTMLDialogElement>>('entryDialog');
-  protected newEntryJournal: JournalLine['journal'] = 'BQ';
-  protected newEntryDate = '2026-10-28';
-  protected newEntryDebitAccount = '';
-  protected newEntryCreditAccount = '';
-  protected newEntryAmount = 0;
-  protected newEntryLabel = '';
+  protected readonly entryDialog = viewChild.required<EntryDialogComponent>('entryDialog');
 
   openEntryModal(): void {
-    this.entryDialog().nativeElement.showModal();
-  }
-
-  closeEntryModal(): void {
-    this.entryDialog().nativeElement.close();
-  }
-
-  submitNewEntry(): void {
-    const success = this.fin.addManualEntry({
-      journal: this.newEntryJournal,
-      date: this.newEntryDate,
-      debitAccount: this.newEntryDebitAccount,
-      creditAccount: this.newEntryCreditAccount,
-      amount: this.newEntryAmount,
-      label: this.newEntryLabel,
-    });
-
-    if (success) {
-      this.closeEntryModal();
-      this.toast.show(
-        `Écriture enregistrée avec succès dans le Journal ${this.newEntryJournal} !`,
-        'success',
-        'list-checks'
-      );
-      this.newEntryDebitAccount = '';
-      this.newEntryCreditAccount = '';
-      this.newEntryAmount = 0;
-      this.newEntryLabel = '';
-    } else {
-      this.toast.show(
-        'Veuillez renseigner des comptes valides (chiffres) et un montant strictement positif.',
-        'error',
-        'alert-triangle'
-      );
-    }
-  }
-
-  // Import Relevé Bancaire
-  private readonly bankFileInput = viewChild.required<ElementRef<HTMLInputElement>>('bankFileInput');
-  openBankFilePicker(): void {
-    this.bankFileInput().nativeElement.click();
-  }
-
-  onBankFileSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.toast.show(
-        `Relevé bancaire « ${file.name} » importé. 3 flux rapprochés automatiquement.`,
-        'success',
-        'receipt'
-      );
-    }
-    (event.target as HTMLInputElement).value = '';
+    this.entryDialog().open();
   }
 
   validateFlow(id: string): void {
@@ -122,7 +71,7 @@ export class TenueComptablePage {
       this.toast.show(
         `Flux de ${validated.label} imputé au Grand Livre avec succès !`,
         'success',
-        'wand-2'
+        'wand-2',
       );
     }
   }
@@ -140,7 +89,7 @@ export class TenueComptablePage {
     this.toast.show(
       `${count} flux validés et imputés au Grand Livre en écriture double !`,
       'success',
-      'check-circle-2'
+      'check-circle-2',
     );
   }
 
@@ -148,7 +97,7 @@ export class TenueComptablePage {
     this.toast.show(
       'Export Grand Livre (format FEC / Excel conforme SYSCOHADA) généré.',
       'info',
-      'download'
+      'download',
     );
   }
 }
