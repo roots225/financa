@@ -1,9 +1,12 @@
 # syntax=docker/dockerfile:1
 
 # ==================================================
-# Stage 1: Build Angular SSR with Bun
+# Stage 1: Build Angular SSR
 # ==================================================
-FROM oven/bun:1-alpine AS builder
+FROM node:24-alpine AS builder
+
+# Copy Bun binary for fast dependency installation with bun.lock
+COPY --from=oven/bun:1-alpine /usr/local/bin/bun /usr/local/bin/bun
 
 WORKDIR /app
 
@@ -14,17 +17,17 @@ COPY package.json bun.lock* ./
 RUN bun install --frozen-lockfile || bun install
 
 # Copy source code and configuration files
-COPY angular.json tsconfig*.json ./
+COPY angular.json tsconfig*.json .postcssrc* ./
 COPY src/ ./src/
 COPY public/ ./public/
 
-# Build production application bundle (Client + SSR Server)
-RUN bun run build
+# Build production application bundle (Client + SSR Server) using Node.js
+RUN npm run build
 
 # ==================================================
 # Stage 2: Minimal Production Runtime with Node 22
 # ==================================================
-FROM node:22-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 
